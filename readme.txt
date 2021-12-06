@@ -9,7 +9,9 @@ On the MG you can also store your assignments for the 6 buttons (Sample, Attack 
 
 This tool is should provide a nice UI to easily manage your samples, assign human-readable names linked to the A0,A1.. wav-files and edit all parameters in the preset files.
 
-The pure code for decoding the preset-files can be found in the "Preset.py" File which contains a class that reads, parses and writes a presetfile. Feel free to use it for other projects!
-
+The pure code for decoding the preset-files can be found in the "Preset.py" File which contains a class that reads, parses and writes a presetfile.
 
 IMPORTANT: Make a backup-copy of your SD card before using this tool in case anything goes wrong!
+
+
+Created 07.12.2021 - All right reversed, use whatever you need from this code! :)
