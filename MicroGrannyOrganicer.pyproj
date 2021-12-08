@@ -22,10 +22,16 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CardFile.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Globals.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="NameTable.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SampleList.py">
+    <Compile Include="FileList.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Preset.py">

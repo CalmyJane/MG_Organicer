@@ -1,18 +1,14 @@
 from collections import namedtuple 
 import os
-from CardFile import CardFile
-import Globals
 
 
-class Preset(CardFile):
+class Preset(object):
     """Stores decoded data of a preset file and reads/parses/writes the preset file"""
 
     ## Preset-Files are memory-dumps from the MicroGranny containing several Variables
     ## Each variable can be between 1 and 10 bits
     ## The class reads the file and stores a boolean array with all bits
     ## Via get_var() and set_var() the variables in the bitstream can be modified
-    ## This code rebuilds (more or less) the code found here:
-    ## https://github.com/bastl-instruments/bastlMicroGranny/blob/master/examples/microGranny2_5/MEM.ino
 
     ## Variable Description:
     ## Num Length Description
@@ -20,30 +16,32 @@ class Preset(CardFile):
     ## #1  - 7  - Crush
     ## #2  - 7  - Attack
     ## #3  - 7  - Release
-    ## #4  - 7  - Loop Length
-    ## #5  - 8  - Shift Speed
+    ## #4  - 7  - Loop_Length
+    ## #5  - 8  - Shift_Speed
     ## #6  - 10 - Start
     ## #7  - 10 - End
     ## #8  - 8  - Setting
     ## #9  - 7  - Filename Character 1 - Ascii value
     ## #10 - 7  - Filename Character 2 - Ascii value
 
-    Slot = namedtuple('slot', ['Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting'])  ##stores the data for one slot of the preset, 
+    Slot = namedtuple('slot', ['samplename', 'attack', 'release'])  ##stores the data for one slot of the preset, 
     slots = []
+    path = "C:\\Temp\\P01.txt"
+    filename = "P01.txt"
+    name = "Funny Sounds"
     bitstream = []
 
-    VARIABLE_NAMES = ["Name", "Rate", "Crush", "Attack", "Release", "Loop Length", "Shift Speed", "Start", "End", "Setting"]
-    ## Length of each variable as found in the microgranny sourcecode
+    ## Variables: ??, ??
     VARIABLE_LENGTHS = (10,7,7,7,7,8,10,10,8,7,7) #the length of each variable stored in the bitstream. 88bits used in total, bitstream is a bit longer
 
     def __init__(self, path):
+        self.path = path
+        self.filename = os.path.dirname(path)
         self.read_file(path)
         self.read_params()
-        return super().__init__(path)
+        return super().__init__()
 
     def read_params(self):
-        ## reads the parameters from the bitstream and updates the slots-tuples
-        ## you should call read_file() before calling this!
         self.slots = []
         print("")
         print("New Variable Values:")
@@ -52,25 +50,16 @@ class Preset(CardFile):
             #convert each 12 bytes to bitstream for one slot
             debugstr = ""
             sname = chr(self.get_var(slot, 9)) + chr(self.get_var(slot, 10))
-            srate = self.get_var(slot, 0)
-            scrush = self.get_var(slot, 1)
             sattack = self.get_var(slot, 2)
             srelease = self.get_var(slot, 3)
-            slooplength = self.get_var(slot, 4)
-            sshiftspeed = self.get_var(slot, 5)
-            sstart = self.get_var(slot, 6)
-            send = self.get_var(slot, 7)
-            ssetting = self.get_var(slot, 8)
-            slot_tuple = self.Slot(sname, srate, scrush, sattack, srelease, slooplength, sshiftspeed, sstart, send, ssetting)
-            self.slots.append(slot_tuple)
+            self.slots.append(self.Slot(sname, sattack, srelease))
 
             for var in range(11):
                 debugstr += str(self.get_var(slot, var)).zfill(4)
                 debugstr += " - "
             print(debugstr)
         print("")
-
-        
+        print("")
 
     def read_file(self, path):
         ## reads the bitstream from a preset file
@@ -84,17 +73,13 @@ class Preset(CardFile):
             int_byte = int(byte)
             int_bytes.append(int_byte)
 
-    def write_file_to_card(self):
+    def write_file(self, path):
         #writes the bitstream to a preset file
         bytes = []
         for n in range(int(len(self.bitstream)/8)):
             byte = self.bits_to_number(self.bitstream[n*8:(n+1)*8])
             bytes.append(byte)
-        file = open(Globals.SD_CARD_PATH + self.file_name, "wb")
-        file.flush()
-        for byte in bytes:
-            file.write(byte.to_bytes(1, 'big'))
-        file.close
+        #debug-print written bytes
         print("")
         print("Bytes Written:")
         print(bytes)

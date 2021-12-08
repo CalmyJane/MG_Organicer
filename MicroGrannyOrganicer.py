@@ -2,17 +2,25 @@ import tkinter as tk
 from tkinter import *
 import os
 import time
-import Sample
+from Sample import Sample
 from Preset import Preset
+import Globals
+from FileList import FileList
 
 
-preset = Preset("C:\\Users\\FreshBob\\Documents\\Temp\\MicroGranny_Sample_Data\\P01.txt")
+Globals.SD_CARD_PATH = "C:\\Users\\FreshBob\\Documents\\Temp\\MicroGranny_Sample_Data\\"
+#Globals.SD_CARD_PATH = "G:\"
+sd_path = Globals.SD_CARD_PATH
+preset = Preset(sd_path + "P01.txt")
 
-
+file_list = FileList()
+file_list.name_sample("A0.wav", "Test A0")
+file_list.write_to_card()
+file_list.read_card()
 
 while True:
-    print("hello")
-    time.sleep(10)
+    pass
+    time.sleep(0.1)
 
 
 
