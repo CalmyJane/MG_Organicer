@@ -94,7 +94,6 @@ class NameTable(CardFile):
             if line.file_name.lower() == file_name.lower():
                 line.name = name
 
-
     def exists(self, file_name):
         for line in self.config_lines:
             if line.file_name.lower() == file_name.lower():

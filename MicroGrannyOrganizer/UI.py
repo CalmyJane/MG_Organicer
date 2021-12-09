@@ -5,7 +5,7 @@ from tkinter import *
 from Sample import Sample
 from Preset import Preset
 from tkinter import filedialog as fd
-#from playsound import playsound
+import winsound
 
 
 class AppWindow(tk.Tk):
@@ -103,9 +103,7 @@ class SampleView(ttk.Treeview):
         ## menu selection - play selected file
         filename = self.item(self.get_children()[self.menu_pos])['values'][3]
         path = self.file_list.get_file_by_name(filename).path
-        path.replace("\\", "/")
-        print(path)
-        #ps = playsound(path)
+        winsound.PlaySound(path, winsound.SND_FILENAME and winsound.SND_ASYNC)
 
     def menu_add_after(self):
         ## menu selection - add file via dialog

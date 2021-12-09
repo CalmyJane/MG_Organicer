@@ -19,6 +19,7 @@ class CardFile(object):
     def __init__(self, path, file_name):
         self.path = path
         self.file_name = file_name
+        print(path)
         self.name = os.path.basename(path)
         return super().__init__()
 
