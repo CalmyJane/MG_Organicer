@@ -36,18 +36,18 @@ class Preset(CardFile):
     ## Length of each variable as found in the microgranny sourcecode
     VARIABLE_LENGTHS = (10,7,7,7,7,8,10,10,8,7,7) #the length of each variable stored in the bitstream. 88bits used in total, bitstream is a bit longer
 
-    def __init__(self, path):
+    def __init__(self, path, file_name):
         self.read_file(path)
         self.read_params()
-        return super().__init__(path)
+        return super().__init__(path, file_name)
 
     def read_params(self):
         ## reads the parameters from the bitstream and updates the slots-tuples
         ## you should call read_file() before calling this!
         self.slots = []
-        print("")
-        print("New Variable Values:")
-        print("")
+        #print("")
+        #print("New Variable Values:")
+        #print("")
         for slot in range(6):
             #convert each 12 bytes to bitstream for one slot
             debugstr = ""
@@ -64,11 +64,11 @@ class Preset(CardFile):
             slot_tuple = self.Slot(sname, srate, scrush, sattack, srelease, slooplength, sshiftspeed, sstart, send, ssetting)
             self.slots.append(slot_tuple)
 
-            for var in range(11):
-                debugstr += str(self.get_var(slot, var)).zfill(4)
-                debugstr += " - "
-            print(debugstr)
-        print("")
+        #    for var in range(11):
+        #        debugstr += str(self.get_var(slot, var)).zfill(4)
+        #        debugstr += " - "
+        #    print(debugstr)
+        #print("")
 
         
 
@@ -95,10 +95,10 @@ class Preset(CardFile):
         for byte in bytes:
             file.write(byte.to_bytes(1, 'big'))
         file.close
-        print("")
-        print("Bytes Written:")
-        print(bytes)
-        print("")
+        #print("")
+        #print("Bytes Written:")
+        #print(bytes)
+        #print("")
 
     def byte_to_bits(self, byte): 
         #Convert a byte (int) to an array of booleans representing it's bits

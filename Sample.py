@@ -5,8 +5,8 @@ from CardFile import CardFile
 class Sample(CardFile):
     """Includes all information about a single sample from the MicroGranny SD Card"""
 
-    def __init__(self, path):
-        return super().__init__(path)
+    def __init__(self, path, file_name):
+        return super().__init__(path, file_name)
 
     def play(self):
         ## Play the sample through main speaker

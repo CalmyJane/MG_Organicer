@@ -25,6 +25,12 @@
     <Compile Include="CardFile.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AudioPlayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UI.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Globals.py">
       <SubType>Code</SubType>
     </Compile>
