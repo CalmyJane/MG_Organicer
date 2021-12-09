@@ -6,7 +6,7 @@ from Sample import Sample
 from Preset import Preset
 from tkinter import filedialog as fd
 import winsound
-
+import wave
 
 class AppWindow(tk.Tk):
     sample_tree = 0
@@ -15,6 +15,19 @@ class AppWindow(tk.Tk):
 
     def __init__(self, file_list):
         super().__init__()
+
+        af = wave.open('C:\\Users\\JGO\\Downloads\\TestSample.wav', 'r')
+        af.setnchannels(1)
+        af.setparams((1, 2, 22010, 0, 'NONE', 'Uncompressed'))
+        af.writeframes(audioData)
+        af.close()
+
+        af = wave.open('C:\\Users\\JGO\\Downloads\\TestSample_Formatted.wav', 'w')
+        af.setnchannels(1)
+        af.setparams((1, 2, 22010, 0, 'NONE', 'Uncompressed'))
+        af.writeframes(audioData)
+        af.close()
+
         self.file_list = file_list
         self.frame = Frame(self)
         #self.frame.pack()
@@ -23,6 +36,8 @@ class AppWindow(tk.Tk):
         self.iconbitmap("images/AppIcon.ico")
         self.resizable(False, False)
         self.create_sample_tree()
+
+        self.bind('<Delete>', self.delete_pressed)
 
     def create_sample_tree(self):
         columns = ('id', 'index', 'name', 'file_name')
@@ -51,6 +66,10 @@ class AppWindow(tk.Tk):
     def delete_samples(self, ifrom, ito):
         self.sample_tree.delete(*self.sample_tree.get_children()[ifrom:ito])
 
+    def delete_pressed(self, event):
+        ## removes the selected entries from sample list
+        self.sample_tree.menu_delete()
+
 
 class MainWindow(tk.Frame):
     """represents the main window of the class"""
@@ -77,7 +96,6 @@ class SampleView(ttk.Treeview):
         self.popup_menu = tk.Menu(self.root, tearoff=0)
         self.popup_menu.add_command(label="Play", command=self.menu_play)
         self.popup_menu.add_command(label="Add", command=self.menu_add_after)
-        self.popup_menu.add_command(label="Delete", command=self.menu_delete)
         self.popup_menu.add_command(label="Delete", command=self.menu_delete)
         self.popup_menu.add_command(label="Select All", command=self.menu_select_all)
 
@@ -107,14 +125,15 @@ class SampleView(ttk.Treeview):
 
     def menu_add_after(self):
         ## menu selection - add file via dialog
-        filetypes=(("Audio Files", ".wav .ogg"))
-        filename = fd.askopenfilename(title='Open a file', initialdir='/')
-        if filename:
-            sample = Sample(filename, self.file_list.get_free_sample_name())
-            sample.index = self.menu_pos + 1
-            self.file_list.samples.insert(sample.index, sample)
-            self.insert('', self.menu_pos,  values=(1234, sample.index, sample.name, sample.file_name))
-            self.set_samples(self.file_list.samples)
+        filetypes=(("Audio", ".ogg .wav .mp3"))
+        filenames = fd.askopenfilenames(title='Open a file', initialdir='/', filetypes=filetypes)
+        if filenames:
+            for filename in filenames:
+                sample = Sample(filename, self.file_list.get_free_sample_name())
+                sample.index = self.menu_pos + 1
+                self.file_list.samples.insert(sample.index, sample)
+                self.insert('', self.menu_pos,  values=(1234, sample.index, sample.name, sample.file_name))
+                self.set_samples(self.file_list.samples)
 
     def menu_delete(self):
         ## Menu Selection - delete selected
