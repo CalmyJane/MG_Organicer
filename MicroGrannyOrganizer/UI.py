@@ -5,7 +5,7 @@ from tkinter import *
 from Sample import Sample
 from Preset import Preset
 from tkinter import filedialog as fd
-from playsound import playsound
+#from playsound import playsound
 
 
 class AppWindow(tk.Tk):
