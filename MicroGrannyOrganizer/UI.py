@@ -12,23 +12,45 @@ class AppWindow(tk.Tk):
     sample_tree = 0
     file_list = 0
     frame = 0
+    btn_load = 0
+    btn_write = 0
 
     def __init__(self, file_list):
         super().__init__()
         self.file_list = file_list
         self.frame = Frame(self)
         #self.frame.pack()
+        ##Init UI Window
         self.geometry('400x400')
         self.title("MicroGranny ORGANICER")
         self.iconbitmap("images/AppIcon.ico")
         self.resizable(False, False)
+        ##Create Buttons
+        #self. create_buttons()
+        ##Create Sample Treeview
         self.create_sample_tree()
+        
 
         self.bind('<Delete>', self.delete_pressed)
 
+    def create_buttons(self):
+        self.btn_load = Button(self)
+        self.btn_load.bind("<ButtonRelease-1>", self.load_pressed)
+        self.btn_load.pack()
+        self.btn_write = Button(self)
+        self.btn_write.bind("<ButtonRelease-1>", self.write_pressed)
+        self.btn_load.pack()
+
+
+    def load_pressed(self, event):
+        print("load pressed")
+
+    def write_pressed(self, event):
+        print("load pressed")
+
     def create_sample_tree(self):
         columns = ('id', 'index', 'name', 'file_name')
-        self.sample_tree = SampleView(self, columns=columns, show='headings', file_list=self.file_list)
+        self.sample_tree = SampleView(self.frame, columns=columns, show='headings', file_list=self.file_list)
         self.sample_tree.pack()
         # define headings
         self.sample_tree.column('id', stretch=NO, minwidth=0, width=0)

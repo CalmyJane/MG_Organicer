@@ -28,6 +28,9 @@
     <Compile Include="AudioPlayer.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Playground.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="UI.py">
       <SubType>Code</SubType>
     </Compile>
