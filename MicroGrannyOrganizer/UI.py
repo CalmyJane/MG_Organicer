@@ -15,19 +15,6 @@ class AppWindow(tk.Tk):
 
     def __init__(self, file_list):
         super().__init__()
-
-        af = wave.open('C:\\Users\\JGO\\Downloads\\TestSample.wav', 'r')
-        af.setnchannels(1)
-        af.setparams((1, 2, 22010, 0, 'NONE', 'Uncompressed'))
-        af.writeframes(audioData)
-        af.close()
-
-        af = wave.open('C:\\Users\\JGO\\Downloads\\TestSample_Formatted.wav', 'w')
-        af.setnchannels(1)
-        af.setparams((1, 2, 22010, 0, 'NONE', 'Uncompressed'))
-        af.writeframes(audioData)
-        af.close()
-
         self.file_list = file_list
         self.frame = Frame(self)
         #self.frame.pack()
@@ -125,11 +112,11 @@ class SampleView(ttk.Treeview):
 
     def menu_add_after(self):
         ## menu selection - add file via dialog
-        filetypes=(("Audio", ".ogg .wav .mp3"))
+        filetypes=(("Audio .wav", "Audio .wav"))
         filenames = fd.askopenfilenames(title='Open a file', initialdir='/', filetypes=filetypes)
         if filenames:
-            for filename in filenames:
-                sample = Sample(filename, self.file_list.get_free_sample_name())
+            for i, filename in enumerate(filenames):
+                sample = Sample(filenames[len(filenames)-i-1], self.file_list.get_free_sample_name())
                 sample.index = self.menu_pos + 1
                 self.file_list.samples.insert(sample.index, sample)
                 self.insert('', self.menu_pos,  values=(1234, sample.index, sample.name, sample.file_name))

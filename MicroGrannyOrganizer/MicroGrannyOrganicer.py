@@ -10,7 +10,7 @@ from tkinter import ttk
 from UI import *
 
 
-Globals.SD_CARD_PATH = "C:\\MyData\\Python_Repos\\MG_Sampledata\\"
+Globals.SD_CARD_PATH = "C:\\Users\\FreshBob\\Documents\\Temp\\MicroGranny_Sample_Data\\"
 #Globals.SD_CARD_PATH = "G:\"
 
 file_list = FileList()
@@ -20,18 +20,19 @@ main_ui = AppWindow(file_list)
 main_ui.set_samples(file_list.samples)
 main_ui.mainloop()
 
+#import wave
+
+#af = wave.open('C:\\Users\\FreshBob\\Downloads\\Sample.wav', 'rb')
+#af.setnchannels(1)
+#af.setparams((1, 2, 22010, 0, 'NONE', 'Uncompressed'))
+#audioData = af.readframes(1)
+#print(audioData)
+#af.close()
+
+##af = wave.open('C:\\Users\\JGO\\Downloads\\TestSample_Formatted.wav', 'w')
+##af.setnchannels(1)
+##af.setparams((1, 2, 22010, 0, 'NONE', 'Uncompressed'))
+##af.writeframes(audioData)
+##af.close()
 
 
-
-
-# import required libraries
-#from pydub import AudioSegment 
-#from pydub.playback import play 
-  
-## Import an audio file 
-## Format parameter only
-## for readability 
-#wav_file = AudioSegment.from_file(file = 'G:\\E2.WAV', format = "wav") 
-  
-## Play the audio file
-#play(wav_file)
