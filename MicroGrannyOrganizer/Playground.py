@@ -6,28 +6,27 @@ from tkinter import *
 def main():
 
     root = Tk()
-    frame = Frame(root)
-    frame.grid(row=0, column=0, sticky="nsew")
-
-    #bottomframe = Frame(root)
-    #bottomframe.pack( side = BOTTOM )
     
-    Frame()
+    # Add image file
+    bg = PhotoImage(file = "images\\Menu_BG.png")
+    bg2 = PhotoImage(file = "images\\grey_shade.png")
+    root.minsize(width=bg.width()+5, height=bg.height()+5)
+    root.resizable(False, False)
+  
+    # Show image using label
+    label1 = Label( root, image = bg)
+    label1.place(x = 0, y = 0)
 
-    redbutton = Button(frame, text="Red", fg="red")
-    redbutton.grid(row=0, column=0, sticky="ne", padx=1)
 
-    greenbutton = Button(frame, text="Brown", fg="brown", padx=1)
-    greenbutton.grid(row=0, column=1, sticky="ne")
+    load_btn = Button(root, text="Load", fg="black",height= 1, width=10)
+    load_btn.place(x=300, y=150)
 
-    bluebutton = Button(frame, text="Blue", fg="blue", padx=1)
-    bluebutton.grid(row=0, column=1, sticky="nw")
+    write_btn = Button(root, text="Write", fg="red", padx=1,height= 1, width=10)
+    write_btn.place(x=150, y=150)
 
-    blackbutton = Button(frame, text="Black", fg="black", padx=1)
-    blackbutton.grid(row=1, column=0, sticky="ne")
 
-    frame.grid_rowconfigure(0, weight=1)
-    frame.grid_columnconfigure(0, weight=1)
+    #root.grid_rowconfigure(0, weight=1)
+    #root.grid_columnconfigure(0, weight=1)
 
     root.mainloop()
 

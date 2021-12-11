@@ -51,16 +51,14 @@ class NameTable(CardFile):
                         ## duplicate entry, replace original. shouldnt happen.
                         self.config_lines[self.get_array_index(config["file_name"])] = ConfigData(config["index"], config["name"], config["file_name"])
 
-
-
     def write_name_table(self):
         file = open(Globals.SD_CARD_PATH + "NameTable.txt", "w")
-        lines = []
+        lines = ""
         file.seek(0)
         for line in self.config_lines:
-            lines.append(line.get_config_string() + "\n")
-        file.writelines(lines)
-        file.truncate
+            lines += line.get_config_string() + "\n"
+        file.write(lines)
+        file.truncate()
         file.close()
 
     def add_file(self, file_name, index):

@@ -5,52 +5,86 @@ from tkinter import *
 from Sample import Sample
 from Preset import Preset
 from tkinter import filedialog as fd
+from tkinter import messagebox as mb
 import winsound
 import wave
+import Globals
+from FileList import FileList
 
 class AppWindow(tk.Tk):
-    sample_tree = 0
-    file_list = 0
-    frame = 0
-    btn_load = 0
-    btn_write = 0
+    sample_tree = 0             ## tkinter TreeView with scrollbar and context menu
+    file_list = 0               ## contains data of all presets/samples and the nametable
+    tree_frame = 0              ## frame that holds the sample-tree
+    bg = 0                      ## PhotoImage-object of the background image
+    bg_label = 0                ## label-object that stores the background image 'bg'
+    load_btn = 0                ## reference of the load-button object
+    write_btn = 0               ## reference of the write-button object
 
-    def __init__(self, file_list):
+    def __init__(self):
         super().__init__()
-        self.file_list = file_list
-        self.frame = Frame(self)
-        #self.frame.pack()
+
+        # Read files from card
+        self.load_file_list(Globals.SD_CARD_PATH)
+
         ##Init UI Window
-        self.geometry('400x400')
         self.title("MicroGranny ORGANICER")
         self.iconbitmap("images/AppIcon.ico")
-        self.resizable(False, False)
-        ##Create Buttons
-        #self. create_buttons()
-        ##Create Sample Treeview
-        self.create_sample_tree()
-        
 
-        self.bind('<Delete>', self.delete_pressed)
+        # Add image file
+        self.bg = PhotoImage(file = "images\\Menu_BG.png")
+        self.minsize(width=self.bg.width()+5, height=self.bg.height()+5)
+        self.resizable(False, False)
+  
+        # Show background image using label
+        self.bg_label = Label(self, image = self.bg)
+        self.bg_label.place(x = 0, y = 0)
+
+        # Create Buttons
+        self.create_buttons()
+
+        # Create Sample Tree
+        self.tree_frame = Frame(self)
+        self.tree_frame.place(x=70, y=71)
+        self.create_sample_tree()
+        self.sample_tree.set_samples(self.file_list.samples)
 
     def create_buttons(self):
-        self.btn_load = Button(self)
-        self.btn_load.bind("<ButtonRelease-1>", self.load_pressed)
-        self.btn_load.pack()
-        self.btn_write = Button(self)
-        self.btn_write.bind("<ButtonRelease-1>", self.write_pressed)
-        self.btn_load.pack()
+        # Create Buttons
+        load_btn = Button(self, text="Load", fg="black",height= 5, width=20, command=self.load_pressed)
+        load_btn.place(x=70, y=450)
+
+        write_btn = Button(self, text="Write", fg="red", padx=1,height= 5, width=20, command=self.write_pressed)
+        write_btn.place(x=250, y=450)
 
 
-    def load_pressed(self, event):
-        print("load pressed")
+    def load_pressed(self):
+        ## load new folder from dialog
+        target_folder = fd.askdirectory(title="Select Folder or SD-Card")
+        if target_folder:
+            if len(target_folder) <= 4:
+                # folder is a Drive, e.g. 'G:\\'
+                mb.showwarning('SD Card Selected', 'It is recommended to work in a folder on your drive to avoid extensive usage of the SD-Card.')
+            self.load_file_list(target_folder + "\\")
 
-    def write_pressed(self, event):
-        print("load pressed")
+    def load_file_list(self, path):
+        Globals.SD_CARD_PATH = path
+        self.file_list = FileList()
+        if self.sample_tree:
+            self.sample_tree.file_list = self.file_list
+            self.sample_tree.set_samples(self.file_list.samples)
+
+    def write_pressed(self):
+        write_msg = 'It is recommended to create of your SD-Card before writing from this tool. \n'
+        write_msg += str(len(self.file_list.removed_samples)) + ' files will be deleted. \n'
+        write_msg += str(self.file_list.get_num_new_samples()) + ' files will be added. \n'
+        if mb.askokcancel('Modiying Files', write_msg):
+            self.file_list.write_to_card()
+            mb.showinfo("Updated Successfull", "Your files have been updated.")
+            self.load_file_list(Globals.SD_CARD_PATH)
 
     def create_sample_tree(self):
         columns = ('id', 'index', 'name', 'file_name')
-        self.sample_tree = SampleView(self.frame, columns=columns, show='headings', file_list=self.file_list)
+        self.sample_tree = SampleView(self.tree_frame, height=16, columns=columns, show='headings', file_list=self.file_list)
         self.sample_tree.pack()
         # define headings
         self.sample_tree.column('id', stretch=NO, minwidth=0, width=0)
@@ -60,43 +94,27 @@ class AppWindow(tk.Tk):
         self.sample_tree.heading('index', text='#')
         self.sample_tree.heading('name', text='Name')
         self.sample_tree.heading('file_name', text='File Name')
-        self.sample_tree.insert('', tk.END, values=('0', '<NO SAMPLES>', '--.--'))
+        self.sample_tree.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
         self.sample_tree.grid(row=0, column=0, sticky=tk.NSEW)
         # add a scrollbar
-        scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.sample_tree.yview)
+        scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.sample_tree.yview)
         self.sample_tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=0, column=1, sticky='ns')
-
-    def set_samples(self, samples):
-        self.sample_tree.delete(*self.sample_tree.get_children())
-        for i, sample in enumerate(samples):
-            self.sample_tree.insert('', tk.END, values=(i, sample.index, sample.name, sample.file_name.upper()))
         
     def delete_samples(self, ifrom, ito):
         self.sample_tree.delete(*self.sample_tree.get_children()[ifrom:ito])
 
-    def delete_pressed(self, event):
-        ## removes the selected entries from sample list
-        self.sample_tree.menu_delete()
-
-
-class MainWindow(tk.Frame):
-    """represents the main window of the class"""
-
-    def __init__(self, master=None, cnf={}, **kw):
-        sample_view = SampleView()
-        root.mainloop()
-        return super().__init__(master=master, cnf=cnf, **kw)
-
 class SampleView(ttk.Treeview):
     """creates a Tree/Listview of samples using tkinter as UI Library"""
-    popup = 0           ## the menu popup window
-    root = 0            ## stores reference of tkinter root node
+    right_mouse_clicked = 0           ## the menu popup window
+    frame = 0            ## stores reference of tkinter root node
+    root = 0           ## stores reference of the frame the tree and scrollbar are in
     file_list = 0       ## stores the FileList object with all samples inside to edit it on menu selection
     menu_pos = 0
 
     def __init__(self, master=None, **kw):
-        self.root = master
+        self.root = master.master
+        self.frame = master
         self.file_list = kw.pop('file_list')
         self.init_context_menu()
         super().__init__(master=master, **kw)
@@ -108,9 +126,12 @@ class SampleView(ttk.Treeview):
         self.popup_menu.add_command(label="Delete", command=self.menu_delete)
         self.popup_menu.add_command(label="Select All", command=self.menu_select_all)
 
-        self.root.bind("<ButtonRelease-3>", self.popup) # Button-2 on Aqua
+        self.root.bind("<ButtonRelease-3>", self.right_mouse_clicked) # Button-2 on Aqua
 
-    def popup(self, event):
+        # Register delete button to delete selected samples
+        self.root.bind('<Delete>', self.delete_pressed)
+
+    def right_mouse_clicked(self, event):
         ## opens the menu-popup, called when rightclick is activated on main window
         if not self.identify_region(event.x, event.y) == 'nothing':
             #click inside region?
@@ -129,20 +150,22 @@ class SampleView(ttk.Treeview):
     def menu_play(self):
         ## menu selection - play selected file
         filename = self.item(self.get_children()[self.menu_pos])['values'][3]
-        path = self.file_list.get_file_by_name(filename).path
-        winsound.PlaySound(path, winsound.SND_FILENAME and winsound.SND_ASYNC)
+        self.file_list.get_file_by_name(filename).play()
 
     def menu_add_after(self):
         ## menu selection - add file via dialog
         filetypes=(("Audio .wav", "Audio .wav"))
-        filenames = fd.askopenfilenames(title='Open a file', initialdir='/', filetypes=filetypes)
+        filenames = fd.askopenfilenames(title='Select Sample(s)', filetypes=filetypes)
         if filenames:
             for i, filename in enumerate(filenames):
                 sample = Sample(filenames[len(filenames)-i-1], self.file_list.get_free_sample_name())
                 sample.index = self.menu_pos + 1
-                self.file_list.samples.insert(sample.index, sample)
+                self.file_list.insert_sample(sample.index, sample)
                 self.insert('', self.menu_pos,  values=(1234, sample.index, sample.name, sample.file_name))
                 self.set_samples(self.file_list.samples)
+    
+    def delete_pressed(self, event):
+        self.menu_delete()
 
     def menu_delete(self):
         ## Menu Selection - delete selected
@@ -161,9 +184,7 @@ class SampleView(ttk.Treeview):
         ## Menu Selection - Select all
         self.selection_set(self.get_children())
 
-
-
 if __name__ == "__main__":
     app = App()
-    frame = MainFrame(app)
+    tree_frame = MainFrame(app)
     app.mainloop()

@@ -1,6 +1,7 @@
 import os
 import shutil
 from CardFile import CardFile
+import winsound
 
 class Sample(CardFile):
     """Includes all information about a single sample from the MicroGranny SD Card"""
@@ -10,7 +11,7 @@ class Sample(CardFile):
 
     def play(self):
         ## Play the sample through main speaker
-        Print("---TO BE DONE---: Playing sample")
+        winsound.PlaySound(self.path, winsound.SND_FILENAME and winsound.SND_ASYNC)
 
     def stop(self):
         ## Stop playing the sample
