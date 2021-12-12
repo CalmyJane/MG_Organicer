@@ -12,6 +12,7 @@ import winsound
 import wave
 import Globals
 from FileList import FileList
+from Knob import Knob
 
 class AppWindow(tk.Tk):
     sample_tree = 0             ## tkinter TreeView with scrollbar and context menu
@@ -23,7 +24,7 @@ class AppWindow(tk.Tk):
     write_btn = 0               ## reference of the write-button object
     auto_play = 0               ## reference to the autoplay-checkbox
     autoplay_value = 1          ## wether the autoplay checkbox is set or not (1, 0)
-
+    canvas = 0                  ## canvas holds background image and knobs
 
     def __init__(self):
         super().__init__()
@@ -34,15 +35,17 @@ class AppWindow(tk.Tk):
         ##Init UI Window
         self.title("MicroGranny ORGANICER")
         self.iconbitmap("images/AppIcon.ico")
-
-        # Add image file
-        self.bg = PhotoImage(file = "images\\Menu_BG.png")
-        self.minsize(width=self.bg.width()+5, height=self.bg.height()+5)
         self.resizable(False, False)
-  
-        # Show background image using label
-        self.bg_label = Label(self, image = self.bg)
-        self.bg_label.place(x = 0, y = 0)
+
+        # create canvas for background and knobs
+        self.bg = PhotoImage(file = "images\\Menu_BG.png")
+        self.minsize(width=self.bg.width()+10, height=self.bg.height()+10)
+        self.canvas = Canvas(self, width=self.bg.width()+5, height=self.bg.height()+5)
+        self.canvas.create_image(self.bg.width()/2+5, self.bg.height()/2+5, image=self.bg)
+        knob = Knob(self, self.canvas, 950, 150, 0, 127)
+        knob = Knob(self, self.canvas, 950, 250, 0, 127)
+        knob = Knob(self, self.canvas, 950, 350, 0, 127)
+        self.canvas.place(x = 0, y = 0)
 
         # Create Buttons
         self.create_buttons()
