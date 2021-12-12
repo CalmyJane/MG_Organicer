@@ -14,6 +14,7 @@ class FileList(object):
     presets = []             ##contains all presets (P01.txt) found on card
     removed_samples = []     ##contains samples that are removed, will be removed from card when calling write_to_card()
     name_table = 0           ##contains lookuptable
+    undoer = 0               ##contains undo-object
 
     def __init__(self):
         name_table = NameTable(Globals.SD_CARD_PATH + "NameTable.txt", "NameTable.txt")
@@ -173,3 +174,27 @@ class FileList(object):
                 invalid_lines.append(entry)
         for entry in invalid_lines:
             self.name_table.config_lines.remove(entry)
+
+
+class UndoObject(object):
+    depth = abs         ## number of undo-steps kept in memory
+    buffer = []         ## buffer of undo-elements
+
+    def __init__(self, first_element):
+        self.reset(first_element)
+        return super().__init__()
+
+    def add(self, element):
+        self.buffer.append(element)
+        if len(self.buffer) > depth:
+            self.buffer = self.buffer[END-depth+1:END]
+
+    def undo(self):
+        element = self.buffer[END]
+        if len(self.buffer)>1:
+            self.buffer.remove(element)
+        return element
+
+    def reset(self, first_element):
+        if first_element:
+            self.buffer.append(first_element)

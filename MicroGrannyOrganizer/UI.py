@@ -1,11 +1,13 @@
 import os
 import tkinter as tk
 from tkinter import ttk
+from tkinter.ttk import *
 from tkinter import *
 from Sample import Sample
 from Preset import Preset
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
+import tkinter.font as font
 import winsound
 import wave
 import Globals
@@ -19,6 +21,9 @@ class AppWindow(tk.Tk):
     bg_label = 0                ## label-object that stores the background image 'bg'
     load_btn = 0                ## reference of the load-button object
     write_btn = 0               ## reference of the write-button object
+    auto_play = 0               ## reference to the autoplay-checkbox
+    autoplay_value = 1          ## wether the autoplay checkbox is set or not (1, 0)
+
 
     def __init__(self):
         super().__init__()
@@ -48,14 +53,25 @@ class AppWindow(tk.Tk):
         self.create_sample_tree()
         self.sample_tree.set_samples(self.file_list.samples)
 
+
     def create_buttons(self):
+        button_font = font.Font(family='Courier New', size=20, weight='bold')
         # Create Buttons
-        load_btn = Button(self, text="Load", fg="black",height= 5, width=20, command=self.load_pressed)
+        load_btn = Button(self, text="Load", fg="black",height= 2, width=9, command=self.load_pressed, bd=3, font=button_font)
         load_btn.place(x=70, y=450)
 
-        write_btn = Button(self, text="Write", fg="red", padx=1,height= 5, width=20, command=self.write_pressed)
-        write_btn.place(x=250, y=450)
+        write_btn = Button(self, text="Write", fg="red", height= 2, width=9, command=self.write_pressed, bd=3, font=button_font)
+        write_btn.place(x=240, y=450)
 
+        # Create Checkbox for autoplay
+        self.autoplay_value = tk.BooleanVar()
+        self.auto_play = tk.Checkbutton(self, text="auto-play", variable=self.autoplay_value, onvalue=True, offvalue=False, command=self.auto_play_toggled)
+        self.autoplay_value.set(True)
+        self.auto_play.place(x=70, y=420)
+
+    def auto_play_toggled(self):
+        self.sample_tree.auto_play = self.autoplay_value.get()
+        self.sample_tree.stop_playing()
 
     def load_pressed(self):
         ## load new folder from dialog
@@ -84,39 +100,51 @@ class AppWindow(tk.Tk):
 
     def create_sample_tree(self):
         columns = ('id', 'index', 'name', 'file_name')
-        self.sample_tree = SampleView(self.tree_frame, height=16, columns=columns, show='headings', file_list=self.file_list)
+        # style the tree
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("ststyle.Treeview", highlightthickness=0, bd=0, font=('Courier New', 10), background="red") # Modify the font of the body
+        style.configure("ststyle.Treeview.Heading", font=('Courier New', 12,'bold')) # Modify the font of the headings
+        style.layout("ststyle.Treeview", [('ststyle.Treeview.treearea', {'sticky': 'nswe'})]) # Remove the borders
+        
+        self.sample_tree = SampleView(self.tree_frame, height=16, columns=columns, show='headings', file_list=self.file_list, style="ststyle.Treeview")
         self.sample_tree.pack()
         # define headings
         self.sample_tree.column('id', stretch=NO, minwidth=0, width=0)
         self.sample_tree.column("index",anchor=W, stretch=False, minwidth=35, width=35)
-        self.sample_tree.column("name",anchor=CENTER, stretch=0, minwidth=200, width=200)
+        self.sample_tree.column("name",anchor=W, stretch=0, minwidth=200, width=200)
         self.sample_tree.column("file_name",anchor=E, stretch=0, minwidth=70, width=70)
-        self.sample_tree.heading('index', text='#')
-        self.sample_tree.heading('name', text='Name')
-        self.sample_tree.heading('file_name', text='File Name')
+        self.sample_tree.heading('index', text='#', anchor=W)
+        self.sample_tree.heading('name', text='Name', anchor=CENTER)
+        self.sample_tree.heading('file_name', text='File', anchor=E)
         self.sample_tree.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
         self.sample_tree.grid(row=0, column=0, sticky=tk.NSEW)
         # add a scrollbar
         scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.sample_tree.yview)
         self.sample_tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=0, column=1, sticky='ns')
+
         
     def delete_samples(self, ifrom, ito):
         self.sample_tree.delete(*self.sample_tree.get_children()[ifrom:ito])
 
+
 class SampleView(ttk.Treeview):
     """creates a Tree/Listview of samples using tkinter as UI Library"""
-    right_mouse_clicked = 0           ## the menu popup window
-    frame = 0            ## stores reference of tkinter root node
-    root = 0           ## stores reference of the frame the tree and scrollbar are in
-    file_list = 0       ## stores the FileList object with all samples inside to edit it on menu selection
+    right_mouse_clicked = 0             ## the menu popup window
+    frame = 0                           ## stores reference of tkinter root node
+    root = 0                            ## stores reference of the frame the tree and scrollbar are in
+    file_list = 0                       ## stores the FileList object with all samples inside to edit it on menu selection
     menu_pos = 0
+    edit = 0                            ## stores the edit-textinput which is displayed to rename files
+    auto_play = True                    ## if True, play samples when selecting them
 
     def __init__(self, master=None, **kw):
         self.root = master.master
         self.frame = master
         self.file_list = kw.pop('file_list')
         self.init_context_menu()
+        self.show_edit(1)
         super().__init__(master=master, **kw)
 
     def init_context_menu(self):
@@ -127,9 +155,14 @@ class SampleView(ttk.Treeview):
         self.popup_menu.add_command(label="Select All", command=self.menu_select_all)
 
         self.root.bind("<ButtonRelease-3>", self.right_mouse_clicked) # Button-2 on Aqua
+        self.root.bind("<<TreeviewSelect>>", self.selection_change) # Button-2 on Aqua
 
         # Register delete button to delete selected samples
         self.root.bind('<Delete>', self.delete_pressed)
+
+    def selection_change(self, event):
+        if self.auto_play and len(self.selection()) > 0:
+            self.file_list.get_file_by_name(self.item(self.selection()[-1])['values'][3]).play()
 
     def right_mouse_clicked(self, event):
         ## opens the menu-popup, called when rightclick is activated on main window
@@ -177,12 +210,22 @@ class SampleView(ttk.Treeview):
     def set_samples(self, samples):
         ## updates the table with a new list of samples, used frequently to assure sync between list in FileList.py and here
         self.delete(*self.get_children())
+        if len(samples)==0:
+            self.sample_tree.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
         for i, sample in enumerate(samples):
             self.insert('', tk.END, values=(i, sample.index, sample.name, sample.file_name.upper()))
 
     def menu_select_all(self):
         ## Menu Selection - Select all
         self.selection_set(self.get_children())
+
+    def show_edit(self, line):
+        self.edit = tk.Text(self.frame, height=1, width=5)
+        self.edit.place(x=1, y=1)
+
+    def stop_playing(self):
+        winsound.PlaySound(None, winsound.SND_PURGE)
+
 
 if __name__ == "__main__":
     app = App()
