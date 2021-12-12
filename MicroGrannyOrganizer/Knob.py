@@ -24,18 +24,19 @@ class Knob(object):
     num_indicator = 0
     label_canv = 0
 
-    def __init__(self, root, canvas, x, y, min, max):
+    def __init__(self, root, canvas, x, y, min, max, name):
+        self.label = name
         self.min=min
         self.max=max
         self.canvas = canvas
         self.root = root
-        self.img_file = Image.open("images\\knob.png")
+        self.img_file = Image.open("images\\knob.png").resize((80, 80), Image.ANTIALIAS)
         self.img=ImageTk.PhotoImage(self.img_file)
         self.img_canv=self.canvas.create_image(x, y, image=self.img)
-        self.root.bind('<ButtonPress-1>', self.mDown) 
-        self.root.bind('<ButtonPress-3>', self.rmDown) 
-        self.root.bind('<ButtonRelease-1>', self.mUp) 
-        self.root.bind('<B1-Motion>', self.mMove) 
+        self.root.binder.bind('<ButtonPress-1>', self.mDown) 
+        self.root.binder.bind('<ButtonPress-3>', self.rmDown) 
+        self.root.binder.bind('<ButtonRelease-1>', self.mUp) 
+        self.root.binder.bind('<B1-Motion>', self.mMove) 
         self.create_num_indicator(self.value)
         self.display_value(self.value)
         self.create_label()
@@ -58,7 +59,6 @@ class Knob(object):
             value = (self.click_pos-event.y)*self.speed + self.value
             self.set_value(value)
         self.click_pos = -1
-
 
     def mMove(self, event):
         if self.click_pos >= 0:
@@ -84,7 +84,7 @@ class Knob(object):
     def value_to_degree(self, value):
         span = self.max-self.min
         angle_span = 360-2*self.pad_angle
-        angle = value/span*angle_span+self.pad_angle
+        angle = value/span*angle_span+self.pad_angle - self.min/span*angle_span
         if angle > (360-self.pad_angle):
             angle = 360-self.pad_angle
         if angle < self.pad_angle:
@@ -99,11 +99,11 @@ class Knob(object):
         self.create_num_indicator(value)
 
     def create_num_indicator(self, value):
-        self.num_indicator=self.canvas.create_text(self.canvas.coords(self.img_canv)[0], self.canvas.coords(self.img_canv)[1], text=str(int(value)).zfill(4), fill="red", font=('Courier 18 bold'))
+        self.num_indicator=self.canvas.create_text(self.canvas.coords(self.img_canv)[0], self.canvas.coords(self.img_canv)[1], text=str(int(value)).zfill(4), fill="red", font=('Courier 15 bold'))
 
     def create_label(self):
         coor= self.canvas.coords(self.img_canv)
-        self.label_canv=self.canvas.create_text(coor[0], coor[1], text=self.label, fill="red", font=('Courier 22'))
+        self.label_canv=self.canvas.create_text(coor[0], coor[1], text=self.label, fill="red", font=('Courier 12 bold'), justify=RIGHT)
         knob_width = self.canvas.bbox(self.img_canv)[2] - self.canvas.bbox(self.img_canv)[0]
         self.canvas.move(self.label_canv, -((self.canvas.bbox(self.label_canv)[2]-self.canvas.bbox(self.label_canv)[0])/2+knob_width/2), 0)
     

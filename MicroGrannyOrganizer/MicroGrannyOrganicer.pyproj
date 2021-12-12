@@ -28,6 +28,21 @@
     <Compile Include="AudioPlayer.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Binder.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PresetListView.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SampleListView.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FileListView.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PresetArea.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Knob.py">
       <SubType>Code</SubType>
     </Compile>

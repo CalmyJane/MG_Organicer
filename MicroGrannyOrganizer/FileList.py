@@ -17,7 +17,7 @@ class FileList(object):
     undoer = 0               ##contains undo-object
 
     def __init__(self):
-        name_table = NameTable(Globals.SD_CARD_PATH + "NameTable.txt", "NameTable.txt")
+        self.name_table = NameTable(Globals.SD_CARD_PATH + "NameTable.txt", "NameTable.txt")
         self.read_card()
         return super().__init__()
 
@@ -25,14 +25,15 @@ class FileList(object):
         self.samples = []
         self.presets = []
         self.removed_samples = []
+        self.name_table.reset()
         ## Read all wav-files from disk and create new objects
         for filename in os.listdir(Globals.SD_CARD_PATH):
             path = Globals.SD_CARD_PATH + filename
             self.import_file(path)
         self.update_custom_names()
-        self.samples.sort(key=self.get_index)
-        self.update_indexes()    
-        print('read ' + str(len(self.samples)) + ' files from card')
+        self.samples.sort(key=Sample.get_index)
+        self.update_indexes()
+        print('read ' + str(len(self.samples)+len(self.presets)) + ' files from card')
 
     def import_file(self, path):
         if path.lower().endswith(".wav"):
@@ -42,23 +43,29 @@ class FileList(object):
             if len(os.path.basename(path)) == 7:
                 ## Preset-File
                 self.presets.append(Preset(path, os.path.basename(path)))
-            else:
+            elif os.path.basename(path) == "NameTable.txt":
                 ## NameTable-File
                 self.name_table = NameTable(path, "NameTable.txt")
+                print(self.name_table.get_text_table())
         if self.name_table == 0:
             self.name_table = NameTable(Globals.SD_CARD_PATH + "NameTable.txt", "NameTable.txt")
     
     def update_custom_names(self):
-        #updates custom names of all files with values from NameTable
+        #updates custom names and indexes of all files with values from NameTable
         for i, sample in enumerate(self.samples):
-            self.name_table.add_file(sample.file_name, i)
-            file_name = self.name_table.get_custom_name(sample.file_name)
-            if not file_name is None:
-                sample.name = self.name_table.get_custom_name(sample.file_name)
-                sample.index = self.name_table.get_index(sample.file_name)
+            index=self.name_table.get_index(sample.file_name)
+            if index == None:
+                index = 100000
+            print(index)
+            sample.index = index
+            name = self.name_table.get_custom_name(sample.file_name)
+            if not name:
+                name=""
+            sample.name = name
+        self.name_table.set_all_files(self.samples)
 
         for i, preset in enumerate(self.presets):
-            self.name_table.add_file(preset.file_name, i)
+            self.name_table.add_file(preset.file_name, i, preset.name)
             if not self.name_table.get_custom_name(preset.file_name) is None:
                 preset.name = self.name_table.get_custom_name(preset.file_name)
 
@@ -103,13 +110,14 @@ class FileList(object):
     def remove_by_name(self, file_name):
         ## Remove a sample by name
         file = self.get_file_by_name(file_name)
-        if self.is_sample(file_name):
-            self.samples.remove(file)
-            if file.is_on_card():
-                self.removed_samples.append(file)
-        else:
-            self.presets.remove(self.get_file_by_name(file_name))
-        self.update_indexes()
+        if file:
+            if self.is_sample(file_name):
+                self.samples.remove(file)
+                if file.is_on_card():
+                    self.removed_samples.append(file)
+            else:
+                self.presets.remove(self.get_file_by_name(file_name))
+            self.update_indexes()
 
     def remove_by_index(self, index):
         ## Remove a sample by name
@@ -120,6 +128,7 @@ class FileList(object):
         Print("---TO BE DONE---: Removing by index")
 
     def write_to_card(self):
+        print(self.name_table.get_text_table())
         self.update_name_table()
         for rsample in self.removed_samples:
             rsample.delete_from_card()
@@ -144,9 +153,10 @@ class FileList(object):
     def get_free_preset_name(self):
         ## returns a Valid preset filename for the microgranny that is not yet taken
         ## Filenames are P01.txt - P99.txt
-        nums = ('0','1','2','3','4','5','6','7','8','9')
-        for first_char in nums:
-            for second_char in nums:
+        fnums = ('0','1','2','3','4','5','6','7','8','9')
+        snums = ('1','2','3','4','5','6')
+        for first_char in fnums:
+            for second_char in snums:
                 fname = "P"+first_char+second_char+".txt"
                 if not self.get_file_by_name(fname) and not fname == "P01.txt":
                     return fname
@@ -156,8 +166,12 @@ class FileList(object):
         self.update_indexes()
 
     def update_indexes(self):
+        ## updates the indexes of all samples, usually after a sample was added. also updates name_table
         for i, sample in enumerate(self.samples):
             sample.index = i
+        for i, preset in enumerate(self.presets):
+            preset.index = i
+        self.update_name_table()
 
     def get_num_new_samples(self):
         #returns the number or samples that were added from disk
@@ -168,12 +182,7 @@ class FileList(object):
         return counter
 
     def update_name_table(self):
-        invalid_lines = []
-        for entry in self.name_table.config_lines:
-            if not self.get_file_by_name(entry.file_name):
-                invalid_lines.append(entry)
-        for entry in invalid_lines:
-            self.name_table.config_lines.remove(entry)
+        self.name_table.set_all_files(self.samples+self.presets)
 
 
 class UndoObject(object):

@@ -14,7 +14,7 @@ class CardFile(object):
     path = ""             ## Path without Filename, may be path on Card or path on Drive. Files no computer CAN NOT be modified!!!
     name = ""             ## A custom name for the file
     file_name = "XX.wav"  ## SD-Card-Format Filename of the file
-    index = ""            ## The files index in a list
+    index = "12345"            ## The files index in a list
 
     def __init__(self, path, file_name):
         self.path = path
@@ -36,4 +36,4 @@ class CardFile(object):
         return self.path == Globals.SD_CARD_PATH + self.file_name
 
     def get_index(self):
-        return index
+        return self.index
