@@ -21,6 +21,7 @@ class FileListView(ttk.Treeview):
     edit = 0                            ##edit-textinput
     edit_text = 0
     edit_file = 0
+    empty = True
 
     
     def __init__(self, master=None, **kw):
@@ -48,8 +49,8 @@ class FileListView(ttk.Treeview):
 
     def right_mouse_clicked(self, event):
         ## opens the menu-popup, called when rightclick is activated on main window
-        
-        if not self.identify_region(event.x, event.y) == 'nothing':
+        inside_widget=event.widget==self
+        if inside_widget and not self.identify_region(event.x, event.y) == 'nothing':
             #click inside region?
             try:
                 row = self.identify_row(event.y)
@@ -66,7 +67,8 @@ class FileListView(ttk.Treeview):
                 self.popup_menu.grab_release()
     
     def delete_pressed(self, event):
-        self.menu_delete()
+        if event.widget==self:
+            self.menu_delete()
 
     def menu_delete(self):
         ## Menu Selection - delete selected
@@ -80,12 +82,15 @@ class FileListView(ttk.Treeview):
         ##should be overwritten by childs to output either sample-list or preset-list
         return None
 
-    def set_files(self, samples):
+    def set_files(self, files):
         ## updates the table with a new list of samples, used frequently to assure sync between list in FileList.py and here
         self.delete(*self.get_children())
-        if len(samples)==0:
+        if len(files)==0:
             self.insert('', tk.END, values=('0', '0', '<NO FILES>', '--.--'))
-        for i, sample in enumerate(samples):
+            self.empty=True
+        else:
+            self.empty=False
+        for i, sample in enumerate(files):
             self.insert('', tk.END, values=(i, sample.index, sample.name, sample.file_name.upper()))
 
     def menu_select_all(self):

@@ -37,8 +37,18 @@ class Preset(CardFile):
     VARIABLE_LENGTHS = (10,7,7,7,7,8,10,10,8,7,7) #the length of each variable stored in the bitstream. 88bits used in total, bitstream is a bit longer
 
     def __init__(self, path, file_name):
-        self.read_file(path)
-        self.read_params()
+        self.file_name=file_name
+        if not path=="":
+            self.read_file(path)
+            self.read_params()
+        else:
+            self.slots=(self.Slot('A3.wav', 127, 0, 5, 110, 0, 0, 0, 678, 7), ##no path=empty list
+                        self.Slot('A4.wav', 132, 10, 10, 5, 0, 0, 0, 345, 5),
+                        self.Slot('A5.wav', 14, 20, 0, 9, 9, 0, 124, 765, 3),
+                        self.Slot('A6.wav', 23, 30, 50, 7, 7, 0, 0, 999, 6),
+                        self.Slot('A7.wav', 78, 110, 40, 8, 0, 10, 0, 254, 9),
+                        self.Slot('A8.wav', 90, 120, 30, 5, 0, 0, 0, 1023, 113))
+        self.update_bitstream()
         return super().__init__(path, file_name)
 
     def read_params(self):
@@ -57,20 +67,19 @@ class Preset(CardFile):
             sattack = self.get_var(slot, 2)
             srelease = self.get_var(slot, 3)
             slooplength = self.get_var(slot, 4)
-            sshiftspeed = self.get_var(slot, 5)
+            sshiftspeed = self.get_var(slot, 5)-128
             sstart = self.get_var(slot, 6)
             send = self.get_var(slot, 7)
             ssetting = self.get_var(slot, 8)
-            slot_tuple = self.Slot(sname, srate, scrush, sattack, srelease, slooplength, sshiftspeed, sstart, send, ssetting)
-            self.slots.append(slot_tuple)
+            print(self.file_name+' - '+str(ssetting))
+            slot_array = [sname, srate, scrush, sattack, srelease, slooplength, sshiftspeed, sstart, send, ssetting]
+            self.slots.append(slot_array)
 
-        #    for var in range(11):
-        #        debugstr += str(self.get_var(slot, var)).zfill(4)
-        #        debugstr += " - "
-        #    print(debugstr)
+            #for var in range(11):
+            #    debugstr += str(self.get_var(slot, var)).zfill(4)
+            #    debugstr += " - "
+            #print(debugstr)
         #print("")
-
-        
 
     def read_file(self, path):
         ## reads the bitstream from a preset file
@@ -84,17 +93,28 @@ class Preset(CardFile):
             int_byte = int(byte)
             int_bytes.append(int_byte)
 
+    def update_bitstream(self):
+        for i, slot in enumerate(self.slots):
+            sname = list(slot)[0]
+            self.set_var(i, 9, ord(sname[0]))
+            self.set_var(i, 10, ord(sname[1]))
+            svars = list(slot)[1:len(slot)-1]
+            for j, var in enumerate(svars):
+                self.set_var(i, j, var)
+
     def write_file_to_card(self):
         #writes the bitstream to a preset file
+        self.update_bitstream()
         bytes = []
         for n in range(int(len(self.bitstream)/8)):
             byte = self.bits_to_number(self.bitstream[n*8:(n+1)*8])
             bytes.append(byte)
         file = open(Globals.SD_CARD_PATH + self.file_name, "wb")
-        file.flush()
+        file.seek(0)
         for byte in bytes:
             file.write(byte.to_bytes(1, 'big'))
-        file.close
+        file.truncate()
+        file.close()
         #print("")
         #print("Bytes Written:")
         #print(bytes)
@@ -130,6 +150,8 @@ class Preset(CardFile):
     def set_var(self, slot_index, var_index, value):
         #sets a variable in the bitstream. analog to the function inside the microgranny sourcecode
         start_bit_rel = 0
+        if var_index==5:
+            value+=128
         for var_len in self.VARIABLE_LENGTHS[0:(var_index)]:
             #add up all lengths up to variable to get position inside 96-bit preset
             start_bit_rel += var_len
@@ -139,5 +161,24 @@ class Preset(CardFile):
         self.bitstream[start_bit:stop_bit] = bits                       #read variable from bitstream
         return self.bits_to_number(bits)
 
-#preset = Preset("G:\\P01.txt")
+    def set_param(slot, name, value):
+        names = ('Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting')
+        if name==names[0]:
+            self.set_var(slot, 9, ord(value[0]))
+            self.set_var(slot, 10, ord(value[1]))
+            self.slots[slot][0]=value[0:1]
+        else:
+            #anything but 'Name'
+            for i, nm in names:
+                if nm == name:
+                    self.slots[slot][i]=value
+                    self.set_var(slot, i-1, value)
+        self.update_bitstream()
 
+    def get_name_index(self, name):
+        names = ('Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting')
+        return names.index(name)
+
+    def get_index_name(self, index):
+        names = ('Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting')
+        return names[index]

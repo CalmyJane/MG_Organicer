@@ -17,6 +17,7 @@ from Binder import Binder
 from PresetArea import PresetArea
 from SampleListView import SampleListView
 from PresetListView import PresetListView
+from ButtonBar import ButtonBar
 
 class AppWindow(tk.Tk):
     sample_tree = 0             ## tkinter TreeView with scrollbar and context menu
@@ -30,7 +31,9 @@ class AppWindow(tk.Tk):
     autoplay_value = 1          ## wether the autoplay checkbox is set or not (1, 0)
     canvas = 0                  ## canvas holds background image and knobs
     binder = 0                  ## tool to allow multiple callbacks to an event like <ButtonPress-1>
-    preset_view = abs           ## PresetView-Object holding all UI elements related to presets
+    preset_area = 0             ## PresetView-Object holding all UI elements related to a preset
+    preset_tree = 0             ## PresetList
+    button_bar = 0              ## holding the 6 sample buttons
 
     def __init__(self):
         super().__init__()
@@ -52,8 +55,8 @@ class AppWindow(tk.Tk):
         self.canvas.create_image(self.bg.width()/2+5, self.bg.height()/2+5, image=self.bg)
         self.canvas.place(x = 0, y = 0)
 
-        # create PresetView
-        self.preset_view = PresetArea(self, self.canvas)
+        # create Preset Area, knobs, setting-indicators ...
+        self.preset_area = PresetArea(self, self.canvas)
 
         # Create Buttons
         self.create_buttons()
@@ -64,11 +67,16 @@ class AppWindow(tk.Tk):
         self.create_sample_tree()
         self.sample_tree.update()
 
-        ## Create Preset Tree
-        #self.preset_frame = Frame(self)
-        #self.preset_frame.place(x=414,y=215)
-        #self.create_preset_tree()
-        #self.preset_tree.update()
+        # Create Preset Tree
+        self.preset_frame = Frame(self)
+        self.preset_frame.place(x=414,y=215)
+        self.create_preset_tree()
+        self.preset_tree.update()
+        
+        print(self.file_list.get_file_by_name('P01.txt').slots[2][8])
+
+        ## Create Button Bar
+        #self.button_bar=ButtonBar(root=self, canvas=self.canvas, x=600, y=400)
 
     def create_buttons(self):
         button_font = font.Font(family='Courier New', size=20, weight='bold')
@@ -104,11 +112,14 @@ class AppWindow(tk.Tk):
         if self.sample_tree:
             self.sample_tree.file_list = self.file_list
             self.sample_tree.update()
+        if self.preset_tree:
+            self.preset_tree.file_list = self.file_list
+            self.preset_tree.update()
 
     def write_pressed(self):
         write_msg = 'It is recommended to create of your SD-Card before writing from this tool. \n'
-        write_msg += str(len(self.file_list.removed_samples)) + ' files will be deleted. \n'
-        write_msg += str(self.file_list.get_num_new_samples()) + ' files will be added. \n'
+        write_msg += str(len(self.file_list.removed_files)) + ' files will be deleted. \n'
+        write_msg += str(self.file_list.get_num_new_files()) + ' files will be added. \n'
         if mb.askokcancel('Modiying Files', write_msg):
             self.file_list.write_to_card()
             mb.showinfo("Updated Successfull", "Your files have been updated.")
@@ -123,7 +134,7 @@ class AppWindow(tk.Tk):
         style.configure("psstyle.Treeview.Heading", font=('Courier New', 12,'bold')) # Modify the font of the headings
         style.layout("psstyle.Treeview", [('ststyle.Treeview.treearea', {'sticky': 'nswe'})]) # Remove the borders
         
-        self.preset_tree = PresetListView(self.preset_frame, height=7, columns=columns, show='headings', file_list=self.file_list, style="psstyle.Treeview")
+        self.preset_tree = PresetListView(self.preset_frame, preset_area=self.preset_area, height=7, columns=columns, show='headings', file_list=self.file_list, style="psstyle.Treeview")
         # define headings
         self.preset_tree.column('id', stretch=NO, minwidth=0, width=0)
         self.preset_tree.column("index",anchor=W, stretch=False, minwidth=25, width=25)
@@ -163,108 +174,6 @@ class AppWindow(tk.Tk):
         scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.sample_tree.yview)
         self.sample_tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=0, column=1, sticky='ns')
-
-    def delete_samples(self, ifrom, ito):
-        self.sample_tree.delete(*self.sample_tree.get_children()[ifrom:ito])
-        self.sample_tree.bind
-
-
-#class SampleListView(ttk.Treeview):
-#    """creates a Tree/Listview of samples using tkinter as UI Library"""
-#    frame = 0                           ## stores reference of tkinter root node
-#    root = 0                            ## stores reference of the frame the tree and scrollbar are in
-#    file_list = 0                       ## stores the FileList object with all samples inside to edit it on menu selection
-#    menu_pos = 0
-#    edit = 0                            ## stores the edit-textinput which is displayed to rename files
-#    auto_play = True                    ## if True, play samples when selecting them
-
-#    def __init__(self, master=None, **kw):
-#        self.root = master.master
-#        self.frame = master
-#        self.file_list = kw.pop('file_list')
-#        self.init_context_menu()
-#        self.show_edit(1)
-#        super().__init__(master=master, **kw)
-
-#    def init_context_menu(self):
-#        self.popup_menu = tk.Menu(self.root, tearoff=0)
-#        self.popup_menu.add_command(label="Play", command=self.menu_play)
-#        self.popup_menu.add_command(label="Add", command=self.menu_add_after)
-#        self.popup_menu.add_command(label="Delete", command=self.menu_delete)
-#        self.popup_menu.add_command(label="Select All", command=self.menu_select_all)
-
-#        self.root.bind("<ButtonRelease-3>", self.right_mouse_clicked) # Button-2 on Aqua
-#        self.root.bind("<<TreeviewSelect>>", self.selection_change) # Button-2 on Aqua
-
-#        # Register delete button to delete selected samples
-#        self.root.bind('<Delete>', self.delete_pressed)
-
-#    def selection_change(self, event):
-#        if self.auto_play and len(self.selection()) > 0:
-#            self.file_list.get_file_by_name(self.item(self.selection()[-1])['values'][3]).play()
-
-#    def right_mouse_clicked(self, event):
-#        ## opens the menu-popup, called when rightclick is activated on main window
-#        if not self.identify_region(event.x, event.y) == 'nothing':
-#            #click inside region?
-#            try:
-#                row = self.identify_row(event.y)
-#                if row and len(self.item(row)['values']) > 0:
-#                    #row was clicked, not header or scrollbar
-#                    if len(self.selection()) <= 1:
-#                        self.selection_set([])
-#                        self.selection_add(row)
-#                    self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
-#                    self.menu_pos = self.item(self.identify_row(event.y))['values'][0]
-#            finally:
-#                self.popup_menu.grab_release()
-
-#    def menu_play(self):
-#        ## menu selection - play selected file
-#        filename = self.item(self.get_children()[self.menu_pos])['values'][3]
-#        self.file_list.get_file_by_name(filename).play()
-
-#    def menu_add_after(self):
-#        ## menu selection - add file via dialog
-#        filetypes=(("Audio .wav", "Audio .wav"))
-#        filenames = fd.askopenfilenames(title='Select Sample(s)', filetypes=filetypes)
-#        if filenames:
-#            for i, filename in enumerate(filenames):
-#                sample = Sample(filenames[len(filenames)-i-1], self.file_list.get_free_sample_name())
-#                sample.index = self.menu_pos + 1
-#                self.file_list.insert_sample(sample.index, sample)
-#                self.insert('', self.menu_pos,  values=(1234, sample.index, sample.name, sample.file_name))
-#                self.set_samples(self.file_list.samples)
-    
-#    def delete_pressed(self, event):
-#        self.menu_delete()
-
-#    def menu_delete(self):
-#        ## Menu Selection - delete selected
-#        for i, csel in enumerate(self.selection()):
-#            file_name = self.item(csel)['values'][3]
-#            self.file_list.remove_by_name(file_name)
-#        self.set_samples(self.file_list.samples)
-
-#    def set_samples(self, samples):
-#        ## updates the table with a new list of samples, used frequently to assure sync between list in FileList.py and here
-#        self.delete(*self.get_children())
-#        if len(samples)==0:
-#            self.sample_tree.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
-#        for i, sample in enumerate(samples):
-#            self.insert('', tk.END, values=(i, sample.index, sample.name, sample.file_name.upper()))
-
-#    def menu_select_all(self):
-#        ## Menu Selection - Select all
-#        self.selection_set(self.get_children())
-
-#    def show_edit(self, line):
-#        self.edit = tk.Text(self.frame, height=1, width=5)
-#        self.edit.place(x=1, y=1)
-
-#    def stop_playing(self):
-#        winsound.PlaySound(None, winsound.SND_PURGE)
-
 
 if __name__ == "__main__":
     app = App()

@@ -5,15 +5,21 @@ from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 from PIL import *
+import numpy
 
 class Knob(object):
+    ## UI Element representing a knob. It consists of an image of a circle, a text indicator in the middle and a label
+    ## Value can be changed by scrolling or drag up/down
+    ## This object needs a canvas to draw it's elements on
+
     min = 0    ##min-value for the knob scale
     max = 127  ##max-value for the knob scale
     value = 28 ##current value
     pad_angle = 30 ##angle (from bottom of knob) to where scale starts/ends
     offset_angle = 180 ##offset to orient the knob
     speed = 0.5  ##how fast the knob moves
-    label = "Crush" ##name of the knob
+    label = "Crush" ##name of the knob to be displayed next to it
+    tag = "" ## custom tag of the knob to identify it
 
     root = 0
     canvas = 0
@@ -23,6 +29,8 @@ class Knob(object):
     click_pos = -1
     num_indicator = 0
     label_canv = 0
+
+    new_value_callback = None ##can be set with a function to be called when the value is updated
 
     def __init__(self, root, canvas, x, y, min, max, name):
         self.label = name
@@ -37,49 +45,64 @@ class Knob(object):
         self.root.binder.bind('<ButtonPress-3>', self.rmDown) 
         self.root.binder.bind('<ButtonRelease-1>', self.mUp) 
         self.root.binder.bind('<B1-Motion>', self.mMove) 
+        self.root.binder.bind('<MouseWheel>', self.mWheel) 
         self.create_num_indicator(self.value)
         self.display_value(self.value)
         self.create_label()
         return super().__init__()
 
-    def mDown(self, event):
+    def mWheel(self, event, **kw):
+        ## mouse wheel scrolled
+        if self.canvas.bbox(self.img_canv)[0] < event.x < self.canvas.bbox(self.img_canv)[2] and self.canvas.bbox(self.img_canv)[1] < event.y < self.canvas.bbox(self.img_canv)[3]:
+            #click was inside widget
+            self.set_value(self.value + numpy.sign(event.delta))
+
+    def mDown(self, event, **kw):
         ## mouse clicked down in window
         if self.canvas.bbox(self.img_canv)[0] < event.x < self.canvas.bbox(self.img_canv)[2] and self.canvas.bbox(self.img_canv)[1] < event.y < self.canvas.bbox(self.img_canv)[3]:
+            #click was inside widget
             self.display_value(self.value)
             self.click_pos=event.y
 
-    def rmDown(self, event):
+    def rmDown(self, event, **kw):
         ## mouse right-clicked down in window
         if self.click_pos >= 0:
             self.click_pos = -1
             self.update()
 
-    def mUp(self, event):
+    def mUp(self, event, **kw):
         if self.click_pos >= 0:
-            value = (self.click_pos-event.y)*self.speed + self.value
+            value = (self.click_pos-event.y)*self.speed*(self.max-self.min)/200 + self.value
             self.set_value(value)
         self.click_pos = -1
 
-    def mMove(self, event):
+    def mMove(self, event, **kw):
         if self.click_pos >= 0:
-            self.display_value((self.click_pos-event.y)*self.speed + self.value)
+            self.display_value((self.click_pos-event.y)*self.speed*(self.max-self.min)/200 + self.value)
 
     def display_value(self, value):
-        if self.min < value < self.max:
-            self.img=ImageTk.PhotoImage(self.img_file.rotate(self.value_to_degree(value)))
-            test = self.canvas.create_image(self.canvas.coords(self.img_canv)[0], self.canvas.coords(self.img_canv)[1], image=self.img)
-            self.update_num_indicator(value)
-            self.canvas.delete(self.img_canv)
-            self.img_canv = test
+        if value < self.min:
+            val = self.min
+        elif value > self.max:
+            val = self.max
+        else:
+            val = value
+        self.img=ImageTk.PhotoImage(self.img_file.rotate(self.value_to_degree(val)))
+        canv_img = self.canvas.create_image(self.canvas.coords(self.img_canv)[0], self.canvas.coords(self.img_canv)[1], image=self.img)
+        self.update_num_indicator(val)
+        self.canvas.delete(self.img_canv)
+        self.img_canv = canv_img
 
     def set_value(self, value):
-        if value < self.min*1.05:
+        if value < self.min:
             self.value = self.min
-        elif value > self.max * 0.95:
+        elif value > self.max:
             self.value = self.max
         else:
-            self.value = value
+            self.value = int(value)
         self.display_value(self.value)
+        if self.new_value_callback:
+            self.new_value_callback(self.tag, self.value)
 
     def value_to_degree(self, value):
         span = self.max-self.min

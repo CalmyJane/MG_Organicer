@@ -31,6 +31,12 @@
     <Compile Include="Binder.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ButtonBar.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MgButton.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PresetListView.py">
       <SubType>Code</SubType>
     </Compile>

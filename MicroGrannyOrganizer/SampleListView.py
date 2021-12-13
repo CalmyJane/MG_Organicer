@@ -25,10 +25,11 @@ class SampleListView(FileListView):
 
     def selection_change(self, event):
         ## user changed selection via mouse or arrow-keys
-        if self.selection():
-            currSample = self.file_list.get_file_by_name(self.item(self.selection()[-1])['values'][3])
-        if self.auto_play and len(self.selection()) > 0 and currSample:
-            currSample.play()
+        if event.widget==self:
+            if self.selection():
+                currSample = self.file_list.get_file_by_name(self.item(self.selection()[-1])['values'][3])
+            if self.auto_play and len(self.selection()) > 0 and currSample:
+                currSample.play()
 
     def add_after(self):
         ## menu selection - add file via dialog
