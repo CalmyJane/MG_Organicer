@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import *
+import PIL
 from PIL import Image
 from PIL import ImageTk
 from PIL import *

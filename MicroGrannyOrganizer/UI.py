@@ -130,7 +130,7 @@ class AppWindow(tk.Tk):
         # style the tree
         style = ttk.Style()
         style.theme_use("clam")
-        style.configure("psstyle.Treeview", highlightthickness=0, bd=0, font=('Courier New', 10), background="red") # Modify the font of the body
+        style.configure("psstyle.Treeview", highlightthickness=0, bd=0, font=('Courier New', 10), background="#333333") # Modify the font of the body
         style.configure("psstyle.Treeview.Heading", font=('Courier New', 12,'bold')) # Modify the font of the headings
         style.layout("psstyle.Treeview", [('ststyle.Treeview.treearea', {'sticky': 'nswe'})]) # Remove the borders
         
