@@ -54,6 +54,7 @@ class PresetArea(object):
     def display_preset(self, preset):
         self.preset=preset
         self.active_slot = 0
+        self.button_bar.set_slot(0)
         self.display_slot(0, preset)
 
     def value_update(self, tag, value):

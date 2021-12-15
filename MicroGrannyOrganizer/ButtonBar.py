@@ -49,3 +49,8 @@ class ButtonBar(object):
         for i, btn in enumerate(self.buttons):
             if btn.label == label:
                 return i
+
+    def set_slot(self, slot):
+        self.current_btn.set_value(False)
+        self.current_btn = self.buttons[slot]
+        self.current_btn.set_value(True)
