@@ -127,6 +127,7 @@ class FileListView(ttk.Treeview):
             self.empty=False
         for i, sample in enumerate(files):
             self.insert('', tk.END, values=(i, sample.index, sample.name, sample.file_name.upper()))
+        self.root.preset_area.redraw()
 
     def menu_select_all(self):
         ## Menu Selection - Select all
@@ -152,3 +153,14 @@ class FileListView(ttk.Treeview):
             if self.selection():
                 last_sample = self.file_list.get_file_by_name(self.item(self.selection()[-1])['values'][3])
                 self.open_rename_dialog(last_sample)
+
+    def select_file(self, file_name):
+        self.selection_set([])
+        if file_name:
+            for child in self.get_children():
+                if self.item(child)['values'][3].lower() == file_name.lower():
+                    self.selection_set(child)
+                    self.see(child)
+
+    def list_edited(self):
+        self.root.preset_area.redraw()

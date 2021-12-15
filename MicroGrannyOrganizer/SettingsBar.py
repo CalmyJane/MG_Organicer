@@ -25,18 +25,23 @@ class SettingsBar(object):
         return super().__init__(*args, **kwargs)
 
     def init_buttons(self):
+        names=('TUNED', 'LEGATO','REPEAT','SYNC','RANDOM SHIFT','')
         self.buttons = []
         for i in range(6):
             btn = CanvasButton(canvas=self.canvas,
                                root=self.root,
                                x=self.x+self.spacing*i,
-                               y=self.y, label="Button"+str(i),
+                               y=self.y,
+                               label=names[i],
                                switch_mode=SwitchModes.switch_when_released,
                                width=45,
                                height=45,
                                on_img='images\\setting_on.png',
                                off_img='images\\setting_off.png',
-                               disabled_img='images\\setting_disabled.png')
+                               disabled_img='images\\setting_disabled.png',
+                               highlight_img='images\\setting_highlight.png',
+                               label_visible=not i==6,
+                               label_offs_y=145)
             btn.value_change_callback=self.btn_value_change
             self.buttons.append(btn)
         self.buttons[5].set_disabled(True)
@@ -68,5 +73,5 @@ class SettingsBar(object):
         print(setting)
         bits = ([True if setting & (1 << (7-n)) else False for n in range(8)])[::-1]
         for i, bit in enumerate(bits):
-            if i <= 5:
+            if i <= 4:
                 self.buttons[i].set_value(bit)

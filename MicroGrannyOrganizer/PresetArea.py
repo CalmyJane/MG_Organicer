@@ -9,6 +9,7 @@ class PresetArea(object):
     """right side of the screen showing buttons and knobs for editing presets"""
     root = 0            ## TKinter root object
     canvas = 0          ## TKinter Canvas
+    file_list = 0       ## List of all files, presets and samples
     knobs = []          ## Contains nobs in order: Attack, Release, Start, End, Rate, Crush, Grain, Shift
 
     knob_offs_x=880
@@ -21,7 +22,8 @@ class PresetArea(object):
     button_bar = 0 ##stores the buttonbar object containing knobs and BIGBUTTONS
     settings_bar = 0 ## the leds to toggle the 5 boolean settings
 
-    def __init__(self, root, canvas):
+    def __init__(self, root, canvas, file_list):
+        self.file_list=file_list
         self.root = root
         self.canvas = canvas
         # Create Knobs
@@ -38,23 +40,30 @@ class PresetArea(object):
                 knob.new_value_callback = self.value_update
                 self.knobs.append(knob)
 
-        self.button_bar = ButtonBar(canvas = self.canvas, root=self.root, x=459, y=497)
+        self.button_bar = ButtonBar(canvas = self.canvas, root=self.root, file_list = self.file_list, x=459, y=497)
         self.button_bar.new_slot_callback = self.new_slot_selected
+        self.button_bar.retrigger_callback = self.button_bar_retriggered
         self.settings_bar = SettingsBar(canvas = self.canvas, root=self.root, x=459, y=415)
         self.settings_bar.new_setting_callback = self.new_setting
         return super().__init__()
 
     def new_slot_selected(self, index):
+        ## called when new slot is selected via one of the 6 buttons
         self.active_slot = index
         self.display_slot(index, self.preset)
+        ##select sample in sample view
+        self.root.sample_tree.select_file(self.preset.get_param(index, 'Name')+'.wav')
+
+    def button_bar_retriggered(self, index):
+        self.root.sample_tree.select_file(self.preset.get_param(index, 'Name')+'.wav')
 
     def new_setting(self, setting):
+        ## called when setting bar was changed
         self.value_update("Setting", setting)
 
     def display_preset(self, preset):
         self.preset=preset
         self.active_slot = 0
-        self.button_bar.set_slot(0)
         self.display_slot(0, preset)
 
     def value_update(self, tag, value):
@@ -62,12 +71,18 @@ class PresetArea(object):
         self.preset.slots[self.active_slot][self.preset.get_name_index(tag)] = value
 
     def display_slot(self, index, preset):
-        self.knobs[0].set_value(preset.slots[index][self.preset.get_name_index("Attack")])
-        self.knobs[1].set_value(preset.slots[index][self.preset.get_name_index("Release")])
-        self.knobs[2].set_value(preset.slots[index][self.preset.get_name_index("Start")])
-        self.knobs[3].set_value(preset.slots[index][self.preset.get_name_index("End")])
-        self.knobs[4].set_value(preset.slots[index][self.preset.get_name_index("Rate")])
-        self.knobs[5].set_value(preset.slots[index][self.preset.get_name_index("Crush")])
-        self.knobs[6].set_value(preset.slots[index][self.preset.get_name_index("Loop_Length")])
-        self.knobs[7].set_value(preset.slots[index][self.preset.get_name_index("Shift_Speed")])
-        self.settings_bar.set_setting(preset.slots[index][self.preset.get_name_index("Setting")])
+        if preset:
+            self.button_bar.set_labels(self.preset)
+            self.button_bar.set_slot(index)
+            self.knobs[0].set_value(preset.slots[index][self.preset.get_name_index("Attack")])
+            self.knobs[1].set_value(preset.slots[index][self.preset.get_name_index("Release")])
+            self.knobs[2].set_value(preset.slots[index][self.preset.get_name_index("Start")])
+            self.knobs[3].set_value(preset.slots[index][self.preset.get_name_index("End")])
+            self.knobs[4].set_value(preset.slots[index][self.preset.get_name_index("Rate")])
+            self.knobs[5].set_value(preset.slots[index][self.preset.get_name_index("Crush")])
+            self.knobs[6].set_value(preset.slots[index][self.preset.get_name_index("Loop_Length")])
+            self.knobs[7].set_value(preset.slots[index][self.preset.get_name_index("Shift_Speed")])
+            self.settings_bar.set_setting(preset.slots[index][self.preset.get_name_index("Setting")])
+
+    def redraw(self):
+        self.display_slot(self.button_bar.get_slot_index(), self.preset)

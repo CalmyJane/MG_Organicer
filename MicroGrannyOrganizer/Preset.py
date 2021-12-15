@@ -181,3 +181,6 @@ class Preset(CardFile):
     def get_index_name(self, index):
         names = ('Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting')
         return names[index]
+
+    def get_param(self, slot, name):
+        return self.slots[slot][self.get_name_index(name)]

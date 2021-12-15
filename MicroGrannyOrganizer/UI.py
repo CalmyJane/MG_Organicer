@@ -56,7 +56,7 @@ class AppWindow(tk.Tk):
         self.canvas.place(x = 0, y = 0)
 
         # create Preset Area, knobs, setting-indicators ...
-        self.preset_area = PresetArea(self, self.canvas)
+        self.preset_area = PresetArea(self, self.canvas, self.file_list)
 
         # Create Buttons
         self.create_buttons()
