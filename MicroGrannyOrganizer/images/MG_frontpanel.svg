@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
    height="297mm"
    viewBox="0 0 210 297"
    version="1.1"
    id="svg8"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="MG_frontpanel.svg"
    inkscape:export-filename="C:\Users\FreshBob\OX Drive\My files\Python\MicroGrannyOrganizer\MicroGrannyOrganizer\MicroGrannyOrganizer\images\MG_frontpanel.png"
    inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100">
+   inkscape:export-ydpi="100"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -58,9 +58,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.2736722"
-     inkscape:cx="848.64594"
-     inkscape:cy="298.88933"
+     inkscape:zoom="3.2154581"
+     inkscape:cx="998.76905"
+     inkscape:cy="209.45694"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -69,7 +69,8 @@
      inkscape:window-height="1017"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -78,7 +79,6 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1040,8 +1040,8 @@
        id="rect1014"
        width="15"
        height="15"
-       x="225.43782"
-       y="34.263901"
+       x="226.13603"
+       y="2.3789909"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
@@ -1049,8 +1049,8 @@
        id="rect1016"
        width="15"
        height="15"
-       x="254.52989"
-       y="34.962109"
+       x="254.76263"
+       y="-8.792366"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
@@ -1068,10 +1068,76 @@
        id="rect1020"
        width="21.571384"
        height="21.571384"
-       x="255.29997"
+       x="254.64169"
        y="60.745346"
        ry="0.23666628"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
+    <circle
+       style="fill:#e6e6ce;fill-opacity:1;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill;stop-color:#000000"
+       id="circle974"
+       cx="231.0047"
+       cy="45.116879"
+       r="3.4049282"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\setting_on.png"
+       inkscape:export-xdpi="149.92316"
+       inkscape:export-ydpi="149.92316" />
+    <circle
+       style="fill:#808080;fill-opacity:1;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill;stop-color:#000000"
+       id="circle3781"
+       cx="264.5769"
+       cy="42.97747"
+       r="3.4049282"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\setting_off.png"
+       inkscape:export-xdpi="149.92316"
+       inkscape:export-ydpi="149.92316" />
+    <rect
+       style="fill:#690000;fill-opacity:1;stroke:#1a1a1a;stroke-width:2.87619;stroke-linecap:round;paint-order:stroke markers fill;stop-color:#000000"
+       id="rect4899"
+       width="21.571384"
+       height="21.571384"
+       x="221.89233"
+       y="100.24205"
+       ry="0.23666628"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\button_disabled.png" />
+    <path
+       style="fill:none;stroke:#1a1a1a;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 221.89233,100.24205 21.57138,21.57138"
+       id="path4934"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\button_disabled.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#1a1a1a;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 221.89233,121.81343 21.57138,-21.57138"
+       id="path4936"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\button_disabled.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <circle
+       style="fill:#4d4d4d;fill-opacity:1;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill;stop-color:#000000"
+       id="circle5018"
+       cx="281.03387"
+       cy="42.319191"
+       r="3.4049282"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\setting_disabled.png"
+       inkscape:export-xdpi="149.92316"
+       inkscape:export-ydpi="149.92316" />
+    <path
+       style="fill:none;stroke:#1a1a1a;stroke-width:0.161741px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 278.34118,39.626192 5.38561,5.385619"
+       id="path5247"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\setting_disabled.png"
+       inkscape:export-xdpi="149.92316"
+       inkscape:export-ydpi="149.92316" />
+    <path
+       style="fill:none;stroke:#1a1a1a;stroke-width:0.161741px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 278.34118,45.011811 5.38561,-5.385619"
+       id="path5249"
+       inkscape:export-filename="C:\MyData\Python_Repos\MG_Organicer\MicroGrannyOrganizer\images\setting_disabled.png"
+       inkscape:export-xdpi="149.92316"
+       inkscape:export-ydpi="149.92316" />
   </g>
 </svg>
