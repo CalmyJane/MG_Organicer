@@ -125,8 +125,8 @@ class FileList(object):
                 self.presets.remove(file)
                 if file.is_on_card():
                     self.removed_files.append(file)
-            else:
-                self.presets.remove(self.get_file_by_name(file_name))
+            #else:
+            #    self.presets.remove(self.get_file_by_name(file_name))
             self.update_indexes()
 
     def remove_by_index(self, index):

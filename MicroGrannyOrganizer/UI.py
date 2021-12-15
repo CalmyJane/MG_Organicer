@@ -62,21 +62,12 @@ class AppWindow(tk.Tk):
         self.create_buttons()
 
         # Create Sample Tree
-        self.tree_frame = Frame(self)
-        self.tree_frame.place(x=70, y=71)
-        self.create_sample_tree()
-        self.sample_tree.update()
+        self.sample_tree = SampleListView(self, file_list=self.file_list)
 
         # Create Preset Tree
-        self.preset_frame = Frame(self)
-        self.preset_frame.place(x=414,y=215)
-        self.create_preset_tree()
-        self.preset_tree.update()
-        
-        print(self.file_list.get_file_by_name('P01.txt').slots[2][8])
+        self.preset_tree = PresetListView(self, preset_area=self.preset_area, file_list=self.file_list)
 
-        ## Create Button Bar
-        #self.button_bar=ButtonBar(root=self, canvas=self.canvas, x=600, y=400)
+        print(self.file_list.get_file_by_name('P01.txt').slots[2][8])
 
     def create_buttons(self):
         button_font = font.Font(family='Courier New', size=20, weight='bold')
@@ -124,56 +115,6 @@ class AppWindow(tk.Tk):
             self.file_list.write_to_card()
             mb.showinfo("Updated Successfull", "Your files have been updated.")
             self.load_file_list(Globals.SD_CARD_PATH)
-
-    def create_preset_tree(self):
-        columns = ('id', 'index', 'name', 'file_name')
-        # style the tree
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("psstyle.Treeview", highlightthickness=0, bd=0, font=('Courier New', 10), background="#333333") # Modify the font of the body
-        style.configure("psstyle.Treeview.Heading", font=('Courier New', 12,'bold')) # Modify the font of the headings
-        style.layout("psstyle.Treeview", [('ststyle.Treeview.treearea', {'sticky': 'nswe'})]) # Remove the borders
-        
-        self.preset_tree = PresetListView(self.preset_frame, preset_area=self.preset_area, height=7, columns=columns, show='headings', file_list=self.file_list, style="psstyle.Treeview")
-        # define headings
-        self.preset_tree.column('id', stretch=NO, minwidth=0, width=0)
-        self.preset_tree.column("index",anchor=W, stretch=False, minwidth=25, width=25)
-        self.preset_tree.column("name",anchor=W, stretch=0, minwidth=240, width=240)
-        self.preset_tree.column("file_name",anchor=E, stretch=0, minwidth=70, width=70)
-        self.preset_tree.heading('index', text='#', anchor=W)
-        self.preset_tree.heading('name', text='Name', anchor=CENTER)
-        self.preset_tree.heading('file_name', text='File', anchor=E)
-        self.preset_tree.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
-        self.preset_tree.grid(row=0, column=0, sticky=tk.NSEW)
-        # add a scrollbar
-        scrollbar = ttk.Scrollbar(self.preset_frame, orient=tk.VERTICAL, command=self.preset_tree.yview)
-        self.preset_tree.configure(yscrollcommand=scrollbar.set)
-        scrollbar.grid(row=0, column=1, sticky='ns')
-
-    def create_sample_tree(self):
-        columns = ('id', 'index', 'name', 'file_name')
-        # style the tree
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("ststyle.Treeview", highlightthickness=0, bd=0, font=('Courier New', 10), background="red") # Modify the font of the body
-        style.configure("ststyle.Treeview.Heading", font=('Courier New', 12,'bold')) # Modify the font of the headings
-        style.layout("ststyle.Treeview", [('ststyle.Treeview.treearea', {'sticky': 'nswe'})]) # Remove the borders
-        
-        self.sample_tree = SampleListView(self.tree_frame, height=16, columns=columns, show='headings', file_list=self.file_list, style="ststyle.Treeview")
-        # define headings
-        self.sample_tree.column('id', stretch=NO, minwidth=0, width=0)
-        self.sample_tree.column("index",anchor=W, stretch=False, minwidth=35, width=35)
-        self.sample_tree.column("name",anchor=W, stretch=0, minwidth=200, width=200)
-        self.sample_tree.column("file_name",anchor=E, stretch=0, minwidth=70, width=70)
-        self.sample_tree.heading('index', text='#', anchor=W)
-        self.sample_tree.heading('name', text='Name', anchor=CENTER)
-        self.sample_tree.heading('file_name', text='File', anchor=E)
-        self.sample_tree.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
-        self.sample_tree.grid(row=0, column=0, sticky=tk.NSEW)
-        # add a scrollbar
-        scrollbar = ttk.Scrollbar(self.tree_frame, orient=tk.VERTICAL, command=self.sample_tree.yview)
-        self.sample_tree.configure(yscrollcommand=scrollbar.set)
-        scrollbar.grid(row=0, column=1, sticky='ns')
 
 if __name__ == "__main__":
     app = App()

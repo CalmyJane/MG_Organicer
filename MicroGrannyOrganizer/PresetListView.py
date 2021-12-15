@@ -9,7 +9,11 @@ class PresetListView(FileListView):
     def __init__(self, master=None, **kw):
         self.preset_area=kw.pop('preset_area')
         kw.setdefault("context_entries", (("Add After", self.add_after), ("Duplicate", self.duplicate)))
-        master.master.binder.bind("<<TreeviewSelect>>", self.selection_change)
+        master.binder.bind("<<TreeviewSelect>>", self.selection_change)
+        kw.setdefault('height', 7)
+        self.position_x = 414
+        self.position_y = 215
+
         ret= super().__init__(master=master, **kw)
         curr_preset=self.file_list.presets[0]
         return ret

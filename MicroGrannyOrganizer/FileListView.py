@@ -22,16 +22,51 @@ class FileListView(ttk.Treeview):
     edit_text = 0
     edit_file = 0
     empty = True
+    position_x = 0
+    position_y = 0
+    name_width = 240
 
     
     def __init__(self, master=None, **kw):
-        self.root = master.master
-        self.frame = master
+        self.root = master
+        self.frame = Frame(self.root)
+        self.frame.place(x=self.position_x,y=self.position_y)
         self.file_list = kw.pop('file_list')
+        columns = ('id', 'index', 'name', 'file_name')
+        kw.setdefault('columns', columns)
+
+        # style the tree
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("flstyle.Treeview", highlightthickness=0, bd=0, font=('Courier New', 10), background="#cccccc") # Modify the font of the body
+        style.configure("flstyle.Treeview.Heading", font=('Courier New', 12,'bold')) # Modify the font of the headings
+        #style.layout("flstyle.Treeview", [('flstyle.Treeview.treearea', {'sticky': 'nswe'})]) # Remove the borders
+        kw.setdefault('style', "flstyle.Treeview")
+
         if kw.get('context_entries'):
             self.centries = kw.pop('context_entries')
         self.init_context_menu()
-        super().__init__(master=master, **kw)
+        kw.setdefault('height', 7)
+        kw.setdefault('show', 'headings')
+
+        ## Instatiate parent (actual Treeview
+        super().__init__(self.frame, **kw)
+        
+        # define headings
+        self.column('id', stretch=NO, minwidth=0, width=0)
+        self.column("index",anchor=W, stretch=False, minwidth=25, width=25)
+        self.column("name",anchor=W, stretch=0, minwidth=self.name_width, width=self.name_width)
+        self.column("file_name",anchor=E, stretch=0, minwidth=70, width=70)
+        self.heading('index', text='#', anchor=W)
+        self.heading('name', text='Name', anchor=CENTER)
+        self.heading('file_name', text='File', anchor=E)
+        self.insert('', tk.END, values=('0', '0', '<NO SAMPLES>', '--.--'))
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+        # add a scrollbar
+        scrollbar = ttk.Scrollbar(self.frame, orient=tk.VERTICAL, command=self.yview)
+        self.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=0, column=1, sticky='ns')
+        self.update()
 
     def init_context_menu(self):
         self.popup_menu = tk.Menu(self.root, tearoff=0)

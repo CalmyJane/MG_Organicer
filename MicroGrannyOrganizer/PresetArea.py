@@ -1,5 +1,8 @@
 from Knob import Knob
 from Preset import Preset
+from CanvasButton import CanvasButton
+from CanvasButton import SwitchModes
+from ButtonBar import ButtonBar
 
 class PresetArea(object):
     """right side of the screen showing buttons and knobs for editing presets"""
@@ -14,6 +17,7 @@ class PresetArea(object):
 
     preset = 0 ##contains the currently displayed preset
     active_slot = 0 ##contains the index of the currently selected slot of the preset (0-5)
+    button_bar = 0 ##stores the buttonbar object containing knobs and BIGBUTTONS
 
     def __init__(self, root, canvas):
         self.root = root
@@ -31,6 +35,8 @@ class PresetArea(object):
                 knob.tag=tags[y][x]
                 knob.new_value_callback = self.value_update
                 self.knobs.append(knob)
+
+        self.button_bar = ButtonBar(canvas = self.canvas, root=self.root, x=459, y=497)
         return super().__init__()
 
     def display_preset(self, preset):

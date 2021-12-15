@@ -1,6 +1,7 @@
 import winsound
 from tkinter import filedialog as fd
 from tkinter import messagebox as mb
+from tkinter import Frame
 from Sample import Sample
 from FileListView import FileListView
 
@@ -10,7 +11,11 @@ class SampleListView(FileListView):
 
     def __init__(self, master=None, **kw):
         kw.setdefault("context_entries", (("Play", self.play),("Add After", self.add_after)))
-        master.master.binder.bind("<<TreeviewSelect>>", self.selection_change) # Button-2 on Aqua
+        master.binder.bind("<<TreeviewSelect>>", self.selection_change) # Button-2 on Aqua
+        kw.setdefault('height', 16)
+        self.position_x = 70
+        self.position_y = 71
+        self.name_width = 200
 
         return super().__init__(master=master, **kw)
 
