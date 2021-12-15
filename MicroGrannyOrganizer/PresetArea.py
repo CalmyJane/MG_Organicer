@@ -3,6 +3,7 @@ from Preset import Preset
 from CanvasButton import CanvasButton
 from CanvasButton import SwitchModes
 from ButtonBar import ButtonBar
+from SettingsBar import SettingsBar
 
 class PresetArea(object):
     """right side of the screen showing buttons and knobs for editing presets"""
@@ -18,6 +19,7 @@ class PresetArea(object):
     preset = 0 ##contains the currently displayed preset
     active_slot = 0 ##contains the index of the currently selected slot of the preset (0-5)
     button_bar = 0 ##stores the buttonbar object containing knobs and BIGBUTTONS
+    settings_bar = 0 ## the leds to toggle the 5 boolean settings
 
     def __init__(self, root, canvas):
         self.root = root
@@ -37,7 +39,17 @@ class PresetArea(object):
                 self.knobs.append(knob)
 
         self.button_bar = ButtonBar(canvas = self.canvas, root=self.root, x=459, y=497)
+        self.button_bar.new_slot_callback = self.new_slot_selected
+        self.settings_bar = SettingsBar(canvas = self.canvas, root=self.root, x=459, y=415)
+        self.settings_bar.new_setting_callback = self.new_setting
         return super().__init__()
+
+    def new_slot_selected(self, index):
+        self.active_slot = index
+        self.display_slot(index, self.preset)
+
+    def new_setting(self, setting):
+        self.value_update("Setting", setting)
 
     def display_preset(self, preset):
         self.preset=preset
@@ -57,3 +69,4 @@ class PresetArea(object):
         self.knobs[5].set_value(preset.slots[index][self.preset.get_name_index("Crush")])
         self.knobs[6].set_value(preset.slots[index][self.preset.get_name_index("Loop_Length")])
         self.knobs[7].set_value(preset.slots[index][self.preset.get_name_index("Shift_Speed")])
+        self.settings_bar.set_setting(preset.slots[index][self.preset.get_name_index("Setting")])

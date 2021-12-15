@@ -71,7 +71,6 @@ class Preset(CardFile):
             sstart = self.get_var(slot, 6)
             send = self.get_var(slot, 7)
             ssetting = self.get_var(slot, 8)
-            print(self.file_name+' - '+str(ssetting))
             slot_array = [sname, srate, scrush, sattack, srelease, slooplength, sshiftspeed, sstart, send, ssetting]
             self.slots.append(slot_array)
 
@@ -126,7 +125,7 @@ class Preset(CardFile):
 
     def number_to_bits(self, number, length):
         #Convert a number to an array of booleans representing it's bits up to the most significant bit used
-        return([True if number & (1 << (length-1-n)) else False for n in range(length)])[::-1]
+        return ([True if number & (1 << (length-1-n)) else False for n in range(length)])[::-1]
 
     def bits_to_number(self, bits):
         #Convert a bit (array of bool) to number (int)

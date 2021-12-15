@@ -14,7 +14,10 @@ class PresetListView(FileListView):
         self.position_x = 414
         self.position_y = 215
 
+
         ret= super().__init__(master=master, **kw)
+        self.selection_set([])
+        self.selection_add(self.get_children()[0])
         curr_preset=self.file_list.presets[0]
         return ret
 

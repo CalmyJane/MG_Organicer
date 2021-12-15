@@ -33,7 +33,6 @@ class FileList(object):
         self.update_custom_names()
         self.samples.sort(key=Sample.get_index)
         self.update_indexes()
-        print('read ' + str(len(self.samples)+len(self.presets)) + ' files from card')
 
     def import_file(self, path):
         if path.lower().endswith(".wav"):
@@ -129,16 +128,7 @@ class FileList(object):
             #    self.presets.remove(self.get_file_by_name(file_name))
             self.update_indexes()
 
-    def remove_by_index(self, index):
-        ## Remove a sample by name
-        Print("---TO BE DONE---: Removing by index")
-        
-    def remove_by_index(self, index):
-        ## Remove a sample by name
-        Print("---TO BE DONE---: Removing by index")
-
     def write_to_card(self):
-        print(self.name_table.get_text_table())
         self.update_name_table()
         for rsample in self.removed_files:
             rsample.delete_from_card()

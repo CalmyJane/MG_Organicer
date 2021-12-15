@@ -37,7 +37,7 @@
     <Compile Include="CanvasButton.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MgButton.py">
+    <Compile Include="SettingsBar.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PresetListView.py">
