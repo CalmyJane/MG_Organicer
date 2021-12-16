@@ -9,7 +9,7 @@ from tkinter import simpledialog
 from tkinter import *
 
 class FileListView(ttk.Treeview):
-    """abstract class, contains common functionality of SampleListView and PresetListView"""
+    """abstract class, contains common functionality of SampleListView and PresetListView like displaying files, selecting (soon) moving and renaming them"""
     right_mouse_clicked = 0             ## the menu popup window
     frame = 0                           ## stores reference of tkinter root node
     root = 0                            ## stores reference of the frame the tree and scrollbar are in

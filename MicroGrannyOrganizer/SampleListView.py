@@ -12,7 +12,7 @@ class SampleListView(FileListView):
     def __init__(self, master=None, **kw):
         kw.setdefault("context_entries", (("Play", self.play),("Add After", self.add_after)))
         master.binder.bind("<<TreeviewSelect>>", self.selection_change) # Button-2 on Aqua
-        kw.setdefault('height', 16)
+        kw.setdefault('height', 22)
         self.position_x = 70
         self.position_y = 71
         self.name_width = 200

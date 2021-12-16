@@ -49,8 +49,9 @@ class CanvasButton(object):
     label_visible = True ## is the label drawn
     label_offs_x = 0
     label_offs_y = 0
+    label_dock = '' ## can contain n, s, e or w for where to dock the labe. Use offset if empty
 
-    value=False ## current value of the button
+    num_value=False ## current value of the button
     value_change_callback = 0 ## function to be called on valuechange, must accept
     clicked_callback = 0 ## function to be called on mousedown on the button
     canvas:Canvas = 0 ## canvas to draw the button on (required)
@@ -110,6 +111,8 @@ class CanvasButton(object):
         if self.label_visible:
             self.draw_label()
         ## call parent 
+        print(kwargs)
+        print(args)
         return super().__init__(*args, **kwargs)
 
     def create_button(self):
@@ -143,7 +146,7 @@ class CanvasButton(object):
                 self.switch_on()
             elif self.switch_mode == SwitchModes.switch_when_pressed:
                 self.toggle()
-        self.clicked_callback(self.value, self)
+        self.clicked_callback(self.num_value, self)
 
     def mMove(self, event):
         #on every move of the mouse
@@ -188,19 +191,19 @@ class CanvasButton(object):
             self.draw_label()
     
     def toggle(self):
-        if self.value:
+        if self.num_value:
             self.switch_off()
         else:
             self.switch_on()
 
     def switch_on(self):
-        last_val=self.value
+        last_val=self.num_value
         self.set_value(True)
         if not last_val and not self.outside:
             self.value_change()
 
     def switch_off(self):
-        last_val = self.value
+        last_val = self.num_value
         self.set_value(False)
         if last_val and not self.outside:
             self.value_change()
@@ -210,7 +213,7 @@ class CanvasButton(object):
         self.redraw()
 
     def value_change(self):
-        self.value_change_callback(self.value, self)
+        self.value_change_callback(self.num_value, self)
 
     def default_callback(self, value, label):
         pass ##do nothing
@@ -222,11 +225,11 @@ class CanvasButton(object):
             self.cimg = self.canvas.create_image(self.x, self.y, image=self.tkdis_img)
             self.canvas.delete(img)
         else:
-            set_value(self.value)
+            set_value(self.num_value)
 
     def redraw(self):
         img = self.cimg
-        if self.value:
+        if self.num_value:
             image = self.tkon_img
         else:
             image = self.tkoff_img
@@ -240,3 +243,29 @@ class CanvasButton(object):
     def draw_label(self):
         self.canvas.delete(self.clabel)
         self.clabel=self.canvas.create_text(self.x+self.label_offs_x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=CENTER)
+        if self.label_dock == 'left':
+            self.clabel=self.canvas.create_text(self.x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=RIGHT)
+            xpos = -((self.canvas.bbox(self.clabel)[2]-self.canvas.bbox(self.clabel)[0])/2+self.width/2) ##calculate offset to the left
+            self.canvas.move(self.clabel, xpos, 0) ## move by offset
+        else:
+            self.clabel=self.canvas.create_text(self.x+self.label_offs_x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=CENTER)
+
+    def rotate_image(self, angle):
+        self.canvas.delete(self.cimg)
+        if self.disabled:
+            img = self.idis_img
+            self.tkdis_img=ImageTk.PhotoImage(img.rotate(val))
+            tkimg = self.tkdis_img
+        elif self.value:
+            img = self.ion_img
+            self.tkon_img=ImageTk.PhotoImage(img.rotate(val))
+            tkimg = self.tkdis_img
+        else:
+            img = self.ioff_img
+            self.tkoff_img=ImageTk.PhotoImage(img.rotate(val))
+            tkimg = self.tkdis_img
+        self.cimg = self.canvas.create_image(self.canvas.coords(self.cimg)[0], self.canvas.coords(self.cimg)[1], image=self.tkimg)
+        if self.highlighted:
+            img = self.ihigh_img
+            self.tkhigh_img=ImageTk.PhotoImage(img.rotate(val))
+            self.chigh = self.canvas.create_image(self.canvas.coords(self.cimg)[0], self.canvas.coords(self.cimg)[1], image=self.tkhigh_img)

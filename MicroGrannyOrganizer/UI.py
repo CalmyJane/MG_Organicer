@@ -18,6 +18,9 @@ from PresetArea import PresetArea
 from SampleListView import SampleListView
 from PresetListView import PresetListView
 from ButtonBar import ButtonBar
+from CanvasButton import CanvasButton
+from CanvasButton import SwitchModes
+from KnobButton import KnobButton
 
 class AppWindow(tk.Tk):
     sample_tree = 0             ## tkinter TreeView with scrollbar and context menu
@@ -28,7 +31,6 @@ class AppWindow(tk.Tk):
     load_btn = 0                ## reference of the load-button object
     write_btn = 0               ## reference of the write-button object
     auto_play = 0               ## reference to the autoplay-checkbox
-    autoplay_value = 1          ## wether the autoplay checkbox is set or not (1, 0)
     canvas = 0                  ## canvas holds background image and knobs
     binder = 0                  ## tool to allow multiple callbacks to an event like <ButtonPress-1>
     preset_area = 0             ## PresetView-Object holding all UI elements related to a preset
@@ -58,44 +60,94 @@ class AppWindow(tk.Tk):
         # create Preset Area, knobs, setting-indicators ...
         self.preset_area = PresetArea(self, self.canvas, self.file_list)
 
-        # Create Buttons
-        self.create_buttons()
-
         # Create Sample Tree
         self.sample_tree = SampleListView(self, file_list=self.file_list)
 
         # Create Preset Tree
         self.preset_tree = PresetListView(self, preset_area=self.preset_area, file_list=self.file_list)
+        
+        # Create Buttons
+        self.create_buttons()
 
-        print(self.file_list.get_file_by_name('P01.txt').slots[2][8])
+        #self.test_knob = KnobButton(min=0,
+        #                            max=127,
+        #                            label='tester',
+        #                            x=500,
+        #                            y=200,
+        #                            root=self,
+        #                            canvas=self.canvas,
+        #                            switch_mode=SwitchModes.no_operation,
+        #                            width=100,
+        #                            height=100,
+        #                            on_img='images\\knob_on.png',
+        #                            off_img='images\\knob_off.png',
+        #                            disabled_img='images\\knob_dis.png',
+        #                            highlight_img='images\\knob_high.png')
 
     def create_buttons(self):
         button_font = font.Font(family='Courier New', size=20, weight='bold')
+        btn_rt_x=485
+        btn_y=100
+        btn_sp_x=100
         # Create Buttons
-        load_btn = Button(self, text="Load", fg="black",height= 2, width=9, command=self.load_pressed, bd=3, font=button_font)
-        load_btn.place(x=70, y=450)
+        self.load_btn = CanvasButton(canvas=self.canvas,
+                               root=self,
+                               x=btn_rt_x+btn_sp_x,
+                               y=btn_y,
+                               switch_mode=SwitchModes.switch_until_released,
+                               width=75,
+                               height=60,
+                               on_img='images\\open_on.png',
+                               off_img='images\\open_off.png',
+                               disabled_img='images\\open_disabled.png',
+                               highlight_img='images\\open_highlight.png',
+                               label_visible=False)
+        self.load_btn.value_change_callback = self.load_pressed
+        self.save_btn = CanvasButton(canvas=self.canvas,
+                               root=self,
+                               x=btn_rt_x+btn_sp_x*2,
+                               y=btn_y,
+                               switch_mode=SwitchModes.switch_until_released,
+                               width=60,
+                               height=60,
+                               on_img='images\\save_on.png',
+                               off_img='images\\save_off.png',
+                               disabled_img='images\\save_disabled.png',
+                               highlight_img='images\\save_highlight.png',
+                               label_visible=False)
+        self.save_btn.value_change_callback = self.write_pressed
 
-        write_btn = Button(self, text="Write", fg="red", height= 2, width=9, command=self.write_pressed, bd=3, font=button_font)
-        write_btn.place(x=240, y=450)
 
-        # Create Checkbox for autoplay
-        self.autoplay_value = tk.BooleanVar()
-        self.auto_play = tk.Checkbutton(self, text="auto-play", variable=self.autoplay_value, onvalue=True, offvalue=False, command=self.auto_play_toggled)
-        self.autoplay_value.set(True)
-        self.auto_play.place(x=70, y=420)
+        # Create autoplay button
+        self.save_btn = CanvasButton(canvas=self.canvas,
+                                   root=self,
+                                   x=btn_rt_x,
+                                   y=btn_y,
+                                   switch_mode=SwitchModes.switch_when_released,
+                                   width=75,
+                                   height=60,
+                                   on_img='images\\vol_on.png',
+                                   off_img='images\\vol_off.png',
+                                   disabled_img='images\\vol_disabled.png',
+                                   highlight_img='images\\vol_highlight.png',
+                                   label_visible=False)
+        self.save_btn.value_change_callback = self.auto_play_toggled
+        self.save_btn.switch_on()
 
-    def auto_play_toggled(self):
-        self.sample_tree.auto_play = self.autoplay_value.get()
+    def auto_play_toggled(self, value, btn):
+        ##called when autoplay button was switched
+        self.sample_tree.auto_play = value
         self.sample_tree.stop_playing()
 
-    def load_pressed(self):
-        ## load new folder from dialog
-        target_folder = fd.askdirectory(title="Select Folder or SD-Card")
-        if target_folder:
-            if len(target_folder) <= 4:
-                # folder is a Drive, e.g. 'G:\\'
-                mb.showwarning('SD Card Selected', 'It is recommended to work in a folder on your drive to avoid extensive usage of the SD-Card.')
-            self.load_file_list(target_folder + "\\")
+    def load_pressed(self, value, btn):
+        if not value:
+            ## load new folder from dialog
+            target_folder = fd.askdirectory(title="Select Folder or SD-Card")
+            if target_folder:
+                if len(target_folder) <= 4:
+                    # folder is a Drive, e.g. 'G:\\'
+                    mb.showwarning('SD Card Selected', 'It is recommended to work in a folder on your drive to avoid extensive usage of the SD-Card.')
+                self.load_file_list(target_folder + "\\")
 
     def load_file_list(self, path):
         Globals.SD_CARD_PATH = path
@@ -107,14 +159,15 @@ class AppWindow(tk.Tk):
             self.preset_tree.file_list = self.file_list
             self.preset_tree.update()
 
-    def write_pressed(self):
-        write_msg = 'It is recommended to create of your SD-Card before writing from this tool. \n'
-        write_msg += str(len(self.file_list.removed_files)) + ' files will be deleted. \n'
-        write_msg += str(self.file_list.get_num_new_files()) + ' files will be added. \n'
-        if mb.askokcancel('Modiying Files', write_msg):
-            self.file_list.write_to_card()
-            mb.showinfo("Updated Successfull", "Your files have been updated.")
-            self.load_file_list(Globals.SD_CARD_PATH)
+    def write_pressed(self, value, btn):
+        if not value:
+            write_msg = 'It is recommended to create of your SD-Card before writing from this tool. \n'
+            write_msg += str(len(self.file_list.removed_files)) + ' files will be deleted. \n'
+            write_msg += str(self.file_list.get_num_new_files()) + ' files will be added. \n'
+            if mb.askokcancel('Modiying Files', write_msg):
+                self.file_list.write_to_card()
+                mb.showinfo("Updated Successfull", "Your files have been updated.")
+                self.load_file_list(Globals.SD_CARD_PATH)
 
 if __name__ == "__main__":
     app = App()
