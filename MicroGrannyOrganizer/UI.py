@@ -69,20 +69,6 @@ class AppWindow(tk.Tk):
         # Create Buttons
         self.create_buttons()
 
-        #self.test_knob = KnobButton(min=0,
-        #                            max=127,
-        #                            label='tester',
-        #                            x=500,
-        #                            y=200,
-        #                            root=self,
-        #                            canvas=self.canvas,
-        #                            switch_mode=SwitchModes.no_operation,
-        #                            width=100,
-        #                            height=100,
-        #                            on_img='images\\knob_on.png',
-        #                            off_img='images\\knob_off.png',
-        #                            disabled_img='images\\knob_dis.png',
-        #                            highlight_img='images\\knob_high.png')
 
     def create_buttons(self):
         button_font = font.Font(family='Courier New', size=20, weight='bold')
@@ -130,6 +116,7 @@ class AppWindow(tk.Tk):
                                    off_img='images\\vol_off.png',
                                    disabled_img='images\\vol_disabled.png',
                                    highlight_img='images\\vol_highlight.png',
+                                   label="autoplay",
                                    label_visible=False)
         self.save_btn.value_change_callback = self.auto_play_toggled
         self.save_btn.switch_on()

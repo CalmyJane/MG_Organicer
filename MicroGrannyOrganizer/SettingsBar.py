@@ -70,7 +70,6 @@ class SettingsBar(object):
                 return i
 
     def set_setting(self, setting):
-        print(setting)
         bits = ([True if setting & (1 << (7-n)) else False for n in range(8)])[::-1]
         for i, bit in enumerate(bits):
             if i <= 4:

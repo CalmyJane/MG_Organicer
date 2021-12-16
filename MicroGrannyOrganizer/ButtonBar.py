@@ -73,7 +73,6 @@ class ButtonBar(object):
                     lines += line
                     text = text[8:len(text)]
                 lines+=text
-                print(lines)
                 btn.label = lines
                 btn.redraw()
 

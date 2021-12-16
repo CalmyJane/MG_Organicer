@@ -43,6 +43,7 @@ class CanvasButton(object):
     switch_mode = SwitchModes.switch_until_released
     width = 100 ## width of the image
     height = 100 ## height of the image
+    stay_on_mouse_move = False ## set to true to keep the button on in Switch_Until_Released, even if the mouse leaves the button
 
     label_font = ('Courier 12 bold') ## font of the label
     clabel = 0 ## contains the canvas text-object for label
@@ -51,7 +52,7 @@ class CanvasButton(object):
     label_offs_y = 0
     label_dock = '' ## can contain n, s, e or w for where to dock the labe. Use offset if empty
 
-    num_value=False ## current value of the button
+    value=False ## current value of the button
     value_change_callback = 0 ## function to be called on valuechange, must accept
     clicked_callback = 0 ## function to be called on mousedown on the button
     canvas:Canvas = 0 ## canvas to draw the button on (required)
@@ -97,9 +98,12 @@ class CanvasButton(object):
             self.label_offs_x = kwargs.pop('label_offs_x')
         if kwargs.get('label_offs_y'):
             self.label_offs_y = kwargs.pop('label_offs_y')
+        if kwargs.get('stay_on_mouse_move'):
+            self.stay_on_mouse_move = kwargs.pop('stay_on_mouse_move')
+        if not kwargs.get('label_dock') == None:
+            self.label_dock = kwargs.pop('label_dock')
         self.value_change_callback = self.default_callback
         self.clicked_callback = self.default_callback
-        print(kwargs)
         ## register events
         self.root.binder.bind('<ButtonPress-1>', self.mDown) 
         self.root.binder.bind('<ButtonRelease-1>', self.mUp) 
@@ -111,8 +115,6 @@ class CanvasButton(object):
         if self.label_visible:
             self.draw_label()
         ## call parent 
-        print(kwargs)
-        print(args)
         return super().__init__(*args, **kwargs)
 
     def create_button(self):
@@ -125,6 +127,7 @@ class CanvasButton(object):
         self.tkdis_img=ImageTk.PhotoImage(self.idis_img)
         self.tkhigh_img=ImageTk.PhotoImage(self.ihigh_img)
         self.cimg=self.canvas.create_image(self.x, self.y, image=self.tkoff_img)
+        print(self.canvas.coords(self.cimg))
 
     ## Event Callbacks
     def mUp(self, event):
@@ -142,11 +145,12 @@ class CanvasButton(object):
         if bbox[0] < event.x < bbox[2] and bbox[1] < event.y < bbox[3] and not self.disabled:
             # click inside button and button not disabled
             self.clicked = True
+            print(self.switch_mode)
             if self.switch_mode == SwitchModes.switch_until_released:
                 self.switch_on()
             elif self.switch_mode == SwitchModes.switch_when_pressed:
                 self.toggle()
-        self.clicked_callback(self.num_value, self)
+        self.clicked_callback(self.value, self)
 
     def mMove(self, event):
         #on every move of the mouse
@@ -161,18 +165,17 @@ class CanvasButton(object):
         #on every move while left mouse is clicked
         bbox = self.canvas.bbox(self.cimg)
         inside = bbox[0] < event.x < bbox[2] and bbox[1] < event.y < bbox[3]
-        if self.clicked:
+        if self.clicked and not self.stay_on_mouse_move:
             if self.switch_mode == SwitchModes.switch_until_released:
                 # if switch until released, track if curser moves out and back in again, and toggle button accordingly
+                # this behavior can be disabled by self.stay_on_mouse_move=True
                 bbox = self.canvas.bbox(self.cimg)
                 if not inside:
                     if not self.outside:
                         # just moved outside button button area
                         self.outside = True
-                        if self.switch_mode == SwitchModes.switch_until_released:
-                            self.switch_off()
-                        elif self.switch_mode == SwitchModes.switch_when_released:
-                            self.toggle()
+                        self.switch_off()
+
                 else:
                     # moved inside box
                     if self.outside:
@@ -182,6 +185,7 @@ class CanvasButton(object):
 
     def show_highlight(self, show):
         self.highlighted = show
+        self.tkhigh_img=ImageTk.PhotoImage(self.ihigh_img.rotate(self.get_rotation_angle()))
         if show:
             self.canvas.delete(self.chigh)
             self.chigh = self.canvas.create_image(self.x, self.y, image=self.tkhigh_img)
@@ -191,19 +195,19 @@ class CanvasButton(object):
             self.draw_label()
     
     def toggle(self):
-        if self.num_value:
+        if self.value:
             self.switch_off()
         else:
             self.switch_on()
 
     def switch_on(self):
-        last_val=self.num_value
+        last_val=self.value
         self.set_value(True)
         if not last_val and not self.outside:
             self.value_change()
 
     def switch_off(self):
-        last_val = self.num_value
+        last_val = self.value
         self.set_value(False)
         if last_val and not self.outside:
             self.value_change()
@@ -213,59 +217,62 @@ class CanvasButton(object):
         self.redraw()
 
     def value_change(self):
-        self.value_change_callback(self.num_value, self)
+        self.value_change_callback(self.value, self)
 
     def default_callback(self, value, label):
         pass ##do nothing
 
     def set_disabled(self, disabled):
         self.disabled = disabled
-        if disabled:
+        if self.disabled:
             img = self.cimg
             self.cimg = self.canvas.create_image(self.x, self.y, image=self.tkdis_img)
             self.canvas.delete(img)
         else:
-            set_value(self.num_value)
+            set_value(self.value)
 
     def redraw(self):
-        img = self.cimg
-        if self.num_value:
-            image = self.tkon_img
-        else:
-            image = self.tkoff_img
-        self.cimg = self.canvas.create_image(self.x, self.y, image=image)
-        self.canvas.delete(img)
-        if self.highlighted:
-            self.show_highlight(True)
+        self.rotate_image(self.get_rotation_angle())
         if self.label_visible:
             self.draw_label()
 
     def draw_label(self):
         self.canvas.delete(self.clabel)
-        self.clabel=self.canvas.create_text(self.x+self.label_offs_x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=CENTER)
         if self.label_dock == 'left':
             self.clabel=self.canvas.create_text(self.x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=RIGHT)
-            xpos = -((self.canvas.bbox(self.clabel)[2]-self.canvas.bbox(self.clabel)[0])/2+self.width/2) ##calculate offset to the left
+            xpos = -((self.canvas.bbox(self.clabel)[2]-self.canvas.bbox(self.clabel)[0])/2+self.width/2+5) ##calculate offset to the left
             self.canvas.move(self.clabel, xpos, 0) ## move by offset
+        elif self.label_dock == 'right':
+            self.clabel=self.canvas.create_text(self.x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=RIGHT)
+            xpos = (self.canvas.bbox(self.clabel)[2]-self.canvas.bbox(self.clabel)[0])/2+self.width/2+5 ##calculate offset to the right
+            self.canvas.move(self.clabel, xpos, 0) ## move by offset
+        elif self.label_dock == 'down':
+            self.clabel=self.canvas.create_text(self.x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=RIGHT)
+            ypos = (self.canvas.bbox(self.clabel)[3]-self.canvas.bbox(self.clabel)[1])/2+self.height/2 ##calculate offset down
+            self.canvas.move(self.clabel, 0, ypos) ## move by offset
+        elif self.label_dock == 'up':
+            self.clabel=self.canvas.create_text(self.x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=RIGHT)
+            ypos = -((self.canvas.bbox(self.clabel)[3]-self.canvas.bbox(self.clabel)[1])/2+self.height/2) ##calculate offset up
+            self.canvas.move(self.clabel, 0, ypos) ## move by offset
         else:
             self.clabel=self.canvas.create_text(self.x+self.label_offs_x, self.y+self.label_offs_y, text=self.label, fill="silver", font=self.label_font, justify=CENTER)
 
     def rotate_image(self, angle):
         self.canvas.delete(self.cimg)
+        self.tkdis_img=ImageTk.PhotoImage(self.idis_img.rotate(angle))
+        self.tkon_img=ImageTk.PhotoImage(self.ion_img.rotate(angle))
+        self.tkoff_img=ImageTk.PhotoImage(self.ioff_img.rotate(angle))
         if self.disabled:
-            img = self.idis_img
-            self.tkdis_img=ImageTk.PhotoImage(img.rotate(val))
             tkimg = self.tkdis_img
         elif self.value:
-            img = self.ion_img
-            self.tkon_img=ImageTk.PhotoImage(img.rotate(val))
-            tkimg = self.tkdis_img
+            tkimg = self.tkon_img
         else:
-            img = self.ioff_img
-            self.tkoff_img=ImageTk.PhotoImage(img.rotate(val))
-            tkimg = self.tkdis_img
-        self.cimg = self.canvas.create_image(self.canvas.coords(self.cimg)[0], self.canvas.coords(self.cimg)[1], image=self.tkimg)
+            tkimg = self.tkoff_img
+        self.cimg = self.canvas.create_image(self.x, self.y, image=tkimg)
         if self.highlighted:
-            img = self.ihigh_img
-            self.tkhigh_img=ImageTk.PhotoImage(img.rotate(val))
-            self.chigh = self.canvas.create_image(self.canvas.coords(self.cimg)[0], self.canvas.coords(self.cimg)[1], image=self.tkhigh_img)
+            self.tkhigh_img=ImageTk.PhotoImage(self.ihigh_img.rotate(angle))
+            self.chigh = self.canvas.create_image(self.x, self.y, image=self.tkhigh_img)
+
+    def get_rotation_angle(self):
+        ##overwritten by children, returns the current angle if needed
+        return 0
