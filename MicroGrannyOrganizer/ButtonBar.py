@@ -18,6 +18,8 @@ class ButtonBar(object):
     new_slot_callback = 0 ## is called when a new slot is selected
     retrigger_callback = 0## is called when a selected button is clicked again to reselect the sample in sample view and retrigger autoplay
 
+    data_dropped_callback = 0 ## is called when one of the buttons has data dragged to it
+
     def __init__(self, *args, **kwargs):
         self.canvas=kwargs.pop('canvas')
         self.root=kwargs.pop('root')
@@ -37,9 +39,16 @@ class ButtonBar(object):
                                label="", 
                                switch_mode=SwitchModes.switch_when_pressed)
             btn.value_change_callback=self.btn_value_change
+            btn.data_dropped_callback=self.data_dropped
             self.buttons.append(btn)
         self.buttons[0].set_value(True)
         self.current_btn = self.buttons[0]
+
+    def data_dropped(self, btn, data):
+        if self.data_dropped_callback:
+            print('buttonbar data dropped')
+            self.data_dropped_callback(data, self.buttons.index(btn)) ## pass dragndrop data and slot-index to caller
+
 
     def btn_value_change(self, value, btn):
         if btn == self.current_btn:
@@ -62,17 +71,20 @@ class ButtonBar(object):
                 fname = preset.get_param(i, 'Name')+".wav"
                 sample = self.file_list.get_file_by_name(fname)
                 if sample:
-                    text=sample.name
+                    text=sample.file_name
                 else:
-                    text='<NONE>'
+                    text='<EMPTY>'
                 if len(text)==0:
                     text=sample.file_name
                 lines = ""
-                while len(text) >= 8:
+                i=0
+                while len(text) >= 8 and i<=3:
                     line=text[:8]+"\n"
                     lines += line
                     text = text[8:len(text)]
-                lines+=text
+                    i+=i
+                if len(text)<=8:
+                    lines+=text
                 btn.label = lines
                 btn.redraw()
 

@@ -54,7 +54,6 @@ class KnobButton(CanvasButton):
         ## mouse clicked down in window
         if self.canvas.bbox(self.cimg)[0] < event.x < self.canvas.bbox(self.cimg)[2] and self.canvas.bbox(self.cimg)[1] < event.y < self.canvas.bbox(self.cimg)[3]:
             #click was inside widget
-            print('knobbutton mdown')
             self.display_value(self.num_value)
             self.click_pos=event.y
 
@@ -113,7 +112,7 @@ class KnobButton(CanvasButton):
         self.create_num_indicator(value)
 
     def create_num_indicator(self, value):
-        self.num_indicator=self.canvas.create_text(self.canvas.coords(self.cimg)[0], self.canvas.coords(self.cimg)[1], text=str(int(value)).zfill(4), fill="#333333", font=('Courier 14 bold'))
+        self.num_indicator=self.canvas.create_text(self.x, self.y, text=str(int(value)).zfill(4), fill="#333333", font=('Courier 14 bold'))
 
     def get_rotation_angle(self):
         return self.value_to_degree(self.num_value)

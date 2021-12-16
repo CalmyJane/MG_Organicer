@@ -37,6 +37,9 @@
     <Compile Include="CanvasButton.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DragnDropper.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="KnobButton.py">
       <SubType>Code</SubType>
     </Compile>

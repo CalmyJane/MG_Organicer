@@ -129,6 +129,7 @@ class FileList(object):
             self.update_indexes()
 
     def write_to_card(self):
+        print(self.presets[0].get_param(0, 'Setting'))
         self.update_name_table()
         for rsample in self.removed_files:
             rsample.delete_from_card()

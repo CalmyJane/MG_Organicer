@@ -13,9 +13,9 @@ class PresetArea(object):
     file_list = 0       ## List of all files, presets and samples
     knobs = []          ## Contains nobs in order: Attack, Release, Start, End, Rate, Crush, Grain, Shift
 
-    knob_offs_x=770
-    knob_offs_y=100
-    knob_space_x=80
+    knob_offs_x=780
+    knob_offs_y=110
+    knob_space_x=90
     knob_space_y=110
 
     preset = 0 ##contains the currently displayed preset
@@ -29,7 +29,7 @@ class PresetArea(object):
         self.canvas = canvas
         # Create Knobs
         sizes = ((0,127), (0,127), (0,1023), (0,1023), (0,1023), (0,127), (0,127),(-127,128))
-        names = ("ATTACK", "RELEASE","START","END","SAMPLE\nRATE","CRUSH","GRAIN\nSIZE","SHIFT\nSPEED")
+        names = ("ATTACK", "RELEASE","START","END","RATE","CRUSH","GRAIN","SHIFT")
         tags = ("Attack", "Release","Start","End","Rate","Crush","Loop_Length","Shift_Speed")
         self.knobs = []
         rows=4
@@ -38,33 +38,38 @@ class PresetArea(object):
             for x in range(rows):
                 cor_x = self.knob_offs_x + x*self.knob_space_x
                 cor_y = self.knob_offs_y + y*self.knob_space_y
-                #knob = Knob(self.root, self.canvas, cor_x, cor_y, size[0], size[1], names[y][x])
 
-                knob = KnobButton(min=sizes[y*cols+x][0],
-                                max=sizes[y*cols+x][1],
-                                label=names[y*cols+x],
+                knob = KnobButton(min=sizes[y*rows+x][0],
+                                max=sizes[y*rows+x][1],
+                                label=names[y*rows+x],
                                 x=cor_x,
                                 y=cor_y,
                                 root=self.root,
                                 canvas=self.canvas,
-                                width=80,
-                                height=80,
+                                width=90,
+                                height=90,
                                 on_img='images\\knob_on.png',
                                 off_img='images\\knob_off.png',
                                 disabled_img='images\\knob_dis.png',
                                 highlight_img='images\\knob_high.png',
                                 label_dock='down',
                                 label_font='Courier 14 bold')
-                knob.tag=tags[y*cols+x]
+                knob.tag=tags[y*rows+x]
                 knob.new_value_callback = self.value_update
                 self.knobs.append(knob)
 
         self.button_bar = ButtonBar(canvas = self.canvas, root=self.root, file_list = self.file_list, x=459, y=497)
         self.button_bar.new_slot_callback = self.new_slot_selected
         self.button_bar.retrigger_callback = self.button_bar_retriggered
+        self.button_bar.data_dropped_callback = self.assign_sample
         self.settings_bar = SettingsBar(canvas = self.canvas, root=self.root, x=459, y=415)
         self.settings_bar.new_setting_callback = self.new_setting
         return super().__init__()
+
+    def assign_sample(self, sample, index):
+        self.preset.set_param(index, 'Name', sample.file_name.split('.')[0].upper())
+        self.new_slot_selected(index)
+        print('sample assigned')
 
     def new_slot_selected(self, index):
         ## called when new slot is selected via one of the 6 buttons

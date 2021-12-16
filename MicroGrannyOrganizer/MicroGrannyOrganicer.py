@@ -10,8 +10,8 @@ from tkinter import ttk
 from UI import *
 
 
-#Globals.SD_CARD_PATH = "C:\\Users\\FreshBob\\Documents\\Temp\\MicroGranny_Sample_Data\\"
-Globals.SD_CARD_PATH = "C:\\MyData\\Python_Repos\\MG_Sampledata\\"
+Globals.SD_CARD_PATH = "C:\\Users\\FreshBob\\Documents\\Temp\\MicroGranny_Sample_Data\\"
+#Globals.SD_CARD_PATH = "C:\\MyData\\Python_Repos\\MG_Sampledata\\"
 #Globals.SD_CARD_PATH = "G:\\"
 
 

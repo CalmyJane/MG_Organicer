@@ -42,12 +42,12 @@ class Preset(CardFile):
             self.read_file(path)
             self.read_params()
         else:
-            self.slots=(self.Slot('A3.wav', 127, 0, 5, 110, 0, 0, 0, 678, 7), ##no path=empty list
-                        self.Slot('A4.wav', 132, 10, 10, 5, 0, 0, 0, 345, 5),
-                        self.Slot('A5.wav', 14, 20, 0, 9, 9, 0, 124, 765, 3),
-                        self.Slot('A6.wav', 23, 30, 50, 7, 7, 0, 0, 999, 6),
-                        self.Slot('A7.wav', 78, 110, 40, 8, 0, 10, 0, 254, 9),
-                        self.Slot('A8.wav', 90, 120, 30, 5, 0, 0, 0, 1023, 113))
+            self.slots=(['A3.wav', 127, 0, 5, 110, 0, 0, 0, 678, 7], ##no path=empty list
+                        ['A4.wav', 132, 10, 10, 5, 0, 0, 0, 345, 5],
+                        ['A5.wav', 14, 20, 0, 9, 9, 0, 124, 765, 3],
+                        ['A6.wav', 23, 30, 50, 7, 7, 0, 0, 999, 6],
+                        ['A7.wav', 78, 110, 40, 8, 0, 10, 0, 254, 9],
+                        ['A8.wav', 90, 120, 30, 5, 0, 0, 0, 1023, 113])
         self.update_bitstream()
         return super().__init__(path, file_name)
 
@@ -56,7 +56,7 @@ class Preset(CardFile):
         ## you should call read_file() before calling this!
         self.slots = []
         #print("")
-        #print("New Variable Values:")
+        #print("New Variable Values:" + self.file_name)
         #print("")
         for slot in range(6):
             #convert each 12 bytes to bitstream for one slot
@@ -80,6 +80,11 @@ class Preset(CardFile):
             #print(debugstr)
         #print("")
 
+    def reverse_byte(self, byte):
+        bits= self.number_to_bits(byte, 8)
+        bits.reverse()
+        return self.bits_to_number(bits)
+
     def read_file(self, path):
         ## reads the bitstream from a preset file
         file = open(path,"rb")
@@ -97,7 +102,7 @@ class Preset(CardFile):
             sname = list(slot)[0]
             self.set_var(i, 9, ord(sname[0]))
             self.set_var(i, 10, ord(sname[1]))
-            svars = list(slot)[1:len(slot)-1]
+            svars = list(slot)[1:len(slot)]
             for j, var in enumerate(svars):
                 self.set_var(i, j, var)
 
@@ -157,21 +162,23 @@ class Preset(CardFile):
         start_bit = start_bit_rel + slot_index * 96                     #add x*96bits to select current preset
         stop_bit = start_bit + self.VARIABLE_LENGTHS[var_index]
         bits = self.number_to_bits(value, self.VARIABLE_LENGTHS[var_index])
-        self.bitstream[start_bit:stop_bit] = bits                       #read variable from bitstream
+        self.bitstream[start_bit:stop_bit] = bits                       #set variable in bitstream
         return self.bits_to_number(bits)
 
-    def set_param(slot, name, value):
+    def set_param(self, slot, name, value):
         names = ('Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting')
         if name==names[0]:
             self.set_var(slot, 9, ord(value[0]))
             self.set_var(slot, 10, ord(value[1]))
-            self.slots[slot][0]=value[0:1]
+            print(value[0:2])
+            self.slots[slot][0]=value[0:2]
         else:
             #anything but 'Name'
+            names.remove('Name')
             for i, nm in names:
                 if nm == name:
-                    self.slots[slot][i]=value
-                    self.set_var(slot, i-1, value)
+                    self.slots[slot][i+1]=value
+                    self.set_var(slot, i, value)
         self.update_bitstream()
 
     def get_name_index(self, name):

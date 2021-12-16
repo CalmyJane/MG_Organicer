@@ -71,6 +71,7 @@ class SettingsBar(object):
 
     def set_setting(self, setting):
         bits = ([True if setting & (1 << (7-n)) else False for n in range(8)])[::-1]
+        #bits.reverse()
         for i, bit in enumerate(bits):
             if i <= 4:
                 self.buttons[i].set_value(bit)

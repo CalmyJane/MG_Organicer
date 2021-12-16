@@ -13,8 +13,8 @@ class SampleListView(FileListView):
         kw.setdefault("context_entries", (("Play", self.play),("Add After", self.add_after)))
         master.binder.bind("<<TreeviewSelect>>", self.selection_change) # Button-2 on Aqua
         kw.setdefault('height', 22)
-        self.position_x = 70
-        self.position_y = 71
+        self.x = 70
+        self.y = 71
         self.name_width = 200
 
         return super().__init__(master=master, **kw)
@@ -51,3 +51,9 @@ class SampleListView(FileListView):
     def get_list(self):
         ##overwrites parent method to tell which list to use
         return self.file_list.samples
+
+    def get_drag(self, event):
+        if not self.empty:
+            fname = self.item(self.identify_row(event.y))['values'][3]
+            sample = self.file_list.get_file_by_name(fname)
+            return sample

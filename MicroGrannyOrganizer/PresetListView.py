@@ -1,5 +1,6 @@
 from FileListView import FileListView
 from Preset import Preset
+import copy
 
 class PresetListView(FileListView):
     """displays all presets on card"""
@@ -11,8 +12,8 @@ class PresetListView(FileListView):
         kw.setdefault("context_entries", (("Add After", self.add_after), ("Duplicate", self.duplicate)))
         master.binder.bind("<<TreeviewSelect>>", self.selection_change)
         kw.setdefault('height', 10)
-        self.position_x = 414
-        self.position_y = 150
+        self.x = 414
+        self.y = 150
         self.name_width = 200
 
 
@@ -39,6 +40,8 @@ class PresetListView(FileListView):
         self.set_files(self.file_list.presets)
 
     def duplicate(self):
-        preset = self.file_list.get_file_by_name(self.item(self.get_children()[self.menu_pos])['values'][3])
-        preset.file_name=self.file_list.get_free_preset_name()
-        self.add_preset(preset)
+        if not self.empty:
+            preset = copy.deepcopy(self.file_list.get_file_by_name(self.item(self.get_children()[self.menu_pos])['values'][3]))
+            preset.file_name=self.file_list.get_free_preset_name()
+            self.add_preset(preset)
+            self.update()

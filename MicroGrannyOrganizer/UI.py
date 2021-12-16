@@ -21,6 +21,7 @@ from ButtonBar import ButtonBar
 from CanvasButton import CanvasButton
 from CanvasButton import SwitchModes
 from KnobButton import KnobButton
+from DragnDropper import DragnDropper
 
 class AppWindow(tk.Tk):
     sample_tree = 0             ## tkinter TreeView with scrollbar and context menu
@@ -36,6 +37,8 @@ class AppWindow(tk.Tk):
     preset_area = 0             ## PresetView-Object holding all UI elements related to a preset
     preset_tree = 0             ## PresetList
     button_bar = 0              ## holding the 6 sample buttons
+
+
 
     def __init__(self):
         super().__init__()
@@ -68,6 +71,12 @@ class AppWindow(tk.Tk):
         
         # Create Buttons
         self.create_buttons()
+
+        # Create DragnDropper
+        self.dragn_dropper = DragnDropper(self)
+        self.dragn_dropper.add_source(self.sample_tree)
+        for button in self.preset_area.button_bar.buttons:
+            self.dragn_dropper.add_target(button)
 
 
     def create_buttons(self):
@@ -145,6 +154,7 @@ class AppWindow(tk.Tk):
         if self.preset_tree:
             self.preset_tree.file_list = self.file_list
             self.preset_tree.update()
+            self.preset_tree.select_index(0)
 
     def write_pressed(self, value, btn):
         if not value:

@@ -7,6 +7,7 @@ from tkinter import Button
 from tkinter import Label
 from tkinter import simpledialog
 from tkinter import *
+from tkinterdnd2 import *
 
 class FileListView(ttk.Treeview):
     """abstract class, contains common functionality of SampleListView and PresetListView like displaying files, selecting (soon) moving and renaming them"""
@@ -22,15 +23,15 @@ class FileListView(ttk.Treeview):
     edit_text = 0
     edit_file = 0
     empty = True
-    position_x = 0
-    position_y = 0
+    x = 0
+    y = 0
     name_width = 240
 
     
     def __init__(self, master=None, **kw):
         self.root = master
         self.frame = Frame(self.root)
-        self.frame.place(x=self.position_x,y=self.position_y)
+        self.frame.place(x=self.x,y=self.y)
         self.file_list = kw.pop('file_list')
         columns = ('id', 'index', 'name', 'file_name')
         kw.setdefault('columns', columns)
@@ -142,13 +143,14 @@ class FileListView(ttk.Treeview):
         self.open_rename_dialog(self.edit_file)
 
     def open_rename_dialog(self, file):
-        new_name = simpledialog.askstring(title = "Rename File", prompt = "New Name:", initialvalue=file.name, parent = self.root)
-        if new_name:
-            file.name = new_name
-            self.update()
+        if file:
+            new_name = simpledialog.askstring(title = "Rename File", prompt = "New Name:", initialvalue=file.name, parent = self.root)
+            if new_name:
+                file.name = new_name
+                self.update()
 
     def key_pressed(self, key):
-        if key.keysym=="F2":
+        if key.keysym=="F2" and self.focus_get()==self:
             ## rename current selection
             if self.selection():
                 last_sample = self.file_list.get_file_by_name(self.item(self.selection()[-1])['values'][3])
@@ -162,5 +164,30 @@ class FileListView(ttk.Treeview):
                     self.selection_set(child)
                     self.see(child)
 
+    def select_index(self, index):
+        self.selection_set([])
+        self.selection_set(self.get_children()[index])
+
     def list_edited(self):
         self.root.preset_area.redraw()
+        self.bbox()
+
+    def is_drag_dropped(self, event):
+        ##checks if the element is dragged from/to
+        return event.widget == self
+
+    def drop_data(self, event, data):
+        ## called when a drag&drop cursor drops data to the element
+        pass
+
+    def drop_move(self, event, data):
+        ## called while a drag&drop cursor is moving over the element
+        pass
+
+    def drop_start(self, event, data):
+        ## called when a drag&drop action is started for all targets
+        pass
+
+    def drop_end(self):
+        ## called when drag&drop operation ended or cancelled
+        pass
