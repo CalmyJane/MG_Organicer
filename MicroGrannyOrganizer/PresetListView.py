@@ -20,6 +20,7 @@ class PresetListView(FileListView):
         ret= super().__init__(master=master, **kw)
         self.selection_set([])
         self.selection_add(self.get_children()[0])
+        #if self.file_list.presets:
         curr_preset=self.file_list.presets[0]
         return ret
 

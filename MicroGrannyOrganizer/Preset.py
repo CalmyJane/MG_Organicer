@@ -170,7 +170,6 @@ class Preset(CardFile):
         if name==names[0]:
             self.set_var(slot, 9, ord(value[0]))
             self.set_var(slot, 10, ord(value[1]))
-            print(value[0:2])
             self.slots[slot][0]=value[0:2]
         else:
             #anything but 'Name'

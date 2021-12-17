@@ -69,7 +69,6 @@ class PresetArea(object):
     def assign_sample(self, sample, index):
         self.preset.set_param(index, 'Name', sample.file_name.split('.')[0].upper())
         self.new_slot_selected(index)
-        print('sample assigned')
 
     def new_slot_selected(self, index):
         ## called when new slot is selected via one of the 6 buttons

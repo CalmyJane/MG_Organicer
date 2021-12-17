@@ -296,10 +296,6 @@ class CanvasButton(object):
         bbox = self.canvas.bbox(self.cimg)
         bbox = (self.x-self.width, self.y-self.height, self.x, self.y)
         isdrag = bbox[0]<event.x<bbox[2] and bbox[1]<event.y<bbox[3]
-        print(event.x)
-        print(event.y)
-        print(bbox)
-        print(self.canvas.canvasy(0))
         return isdrag
 
     def drop_data(self, event, data):

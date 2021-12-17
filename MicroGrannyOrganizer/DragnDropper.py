@@ -7,6 +7,8 @@ class DragnDropper(object):
 
     drag_data=0 ## can contain anything, but source and targets "get_drag" and "set_drag" functions must 'send' and 'recieve' the same thing
     dragging = False ## currently dragging?
+    clicked = False ## if a source was clicked, will start draggin on next mouse-move event
+    drag_start_event_data = False ## stores the event-data from mousedown event to be used to start drag on mousemove
 
     def __init__(self, root):
         self.root = root
@@ -24,7 +26,8 @@ class DragnDropper(object):
     def mDown(self, event):
         ## mouse down - start drag if source was clicked, store drag data and wait for mouse up
         if self.get_source(event):
-            self.start_drag(event)
+            self.clicked = True
+            self.drag_start_event_data = event
         else:
             self.dragging = False
             self.drag_data = 0
@@ -37,9 +40,13 @@ class DragnDropper(object):
             if el.drop_end:
                 el.drop_end()
         self.dragging = False
+        self.clicked = False
         self.root.config(cursor='arrow')
 
     def mMove(self, event):
+        if self.clicked:
+            self.start_drag(self.drag_start_event_data)
+        self.clicked=False
         if self.dragging:
             for target in self.targets:
                 target.drop_move(event, self.drag_data)

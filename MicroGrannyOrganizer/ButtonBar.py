@@ -46,7 +46,6 @@ class ButtonBar(object):
 
     def data_dropped(self, btn, data):
         if self.data_dropped_callback:
-            print('buttonbar data dropped')
             self.data_dropped_callback(data, self.buttons.index(btn)) ## pass dragndrop data and slot-index to caller
 
 

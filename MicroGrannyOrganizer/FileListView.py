@@ -7,7 +7,6 @@ from tkinter import Button
 from tkinter import Label
 from tkinter import simpledialog
 from tkinter import *
-from tkinterdnd2 import *
 
 class FileListView(ttk.Treeview):
     """abstract class, contains common functionality of SampleListView and PresetListView like displaying files, selecting (soon) moving and renaming them"""
