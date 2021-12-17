@@ -32,6 +32,8 @@ class FileList(object):
             self.import_file(path)
         self.update_custom_names()
         self.samples.sort(key=Sample.get_index)
+        if len(self.presets)<=0:
+            self.presets.append(Preset("", 'P01.txt'))
         self.update_indexes()
 
     def import_file(self, path):

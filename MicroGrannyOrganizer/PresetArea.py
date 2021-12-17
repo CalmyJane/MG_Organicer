@@ -75,7 +75,8 @@ class PresetArea(object):
         self.active_slot = index
         self.display_slot(index, self.preset)
         ##select sample in sample view
-        self.root.sample_tree.select_file(self.preset.get_param(index, 'Name')+'.wav')
+        if self.preset:
+            self.root.sample_tree.select_file(self.preset.get_param(index, 'Name')+'.wav')
 
     def button_bar_retriggered(self, index):
         self.root.sample_tree.select_file(self.preset.get_param(index, 'Name')+'.wav')
@@ -91,7 +92,8 @@ class PresetArea(object):
 
     def value_update(self, tag, value):
         ## new value from knob, update preset-object with new value
-        self.preset.slots[self.active_slot][self.preset.get_name_index(tag)] = value
+        if self.preset:
+            self.preset.slots[self.active_slot][self.preset.get_name_index(tag)] = value
 
     def display_slot(self, index, preset):
         if preset:
