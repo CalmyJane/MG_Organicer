@@ -6,6 +6,8 @@ from collections import namedtuple
 from CardFile import CardFile
 from NameTable import NameTable
 import pathlib
+import re
+
 
 
 class FileList(object):
@@ -163,6 +165,22 @@ class FileList(object):
                 fname = "P"+first_char+second_char+".txt"
                 if not self.get_file_by_name(fname) and not fname == "P01.txt":
                     return fname
+
+    def is_valid_preset_name(self, preset_name):
+        valid = False
+        p = re.compile("P[0-9][1-6]\.txt", re.IGNORECASE)
+        if p:
+            m = p.match(preset_name)
+            if m:
+                valid = m.span() == (0,7)
+        return valid
+
+    def is_free_preset_name(self, preset_name):
+        is_free = True
+        for preset in self.presets:
+            if preset.file_name == preset_name:
+                is_free = False
+        return is_free
 
     def insert_sample(self, index, sample):
         self.samples.insert(index, sample)

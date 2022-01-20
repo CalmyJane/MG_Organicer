@@ -68,4 +68,3 @@ class DragnDropper(object):
             self.root.config(cursor='fleur')
             for target in self.targets:
                 target.drop_start(event, self.drag_data)
-

@@ -54,7 +54,7 @@ class AppWindow(tk.Tk):
         self.resizable(False, False)
 
         # create canvas for background and PresetView
-        self.bg = PhotoImage(file = "images\\Menu_BG.png")
+        self.bg = PhotoImage(file = "images\\Menu_BG.png", name="test")
         self.minsize(width=self.bg.width()+10, height=self.bg.height()+10)
         self.canvas = Canvas(self, width=self.bg.width()+5, height=self.bg.height()+5)
         self.canvas.create_image(self.bg.width()/2+5, self.bg.height()/2+5, image=self.bg)

@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="images\AppIcon.ico" />
+    <Content Include="images\Menu_BG.png" />
     <Content Include="images\RobBoss.png" />
   </ItemGroup>
   <ItemGroup>

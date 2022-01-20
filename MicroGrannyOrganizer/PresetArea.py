@@ -28,7 +28,7 @@ class PresetArea(object):
         self.root = root
         self.canvas = canvas
         # Create Knobs
-        sizes = ((0,127), (0,127), (0,1023), (0,1023), (0,1023), (0,127), (0,127),(-127,128))
+        sizes = ((0,126), (0,126), (0,1022), (0,1022), (0,1022), (0,126), (0,126),(-127,127))
         names = ("ATTACK", "RELEASE","START","END","RATE","CRUSH","GRAIN","SHIFT")
         tags = ("Attack", "Release","Start","End","Rate","Crush","Loop_Length","Shift_Speed")
         self.knobs = []
@@ -83,7 +83,10 @@ class PresetArea(object):
 
     def new_setting(self, setting):
         ## called when setting bar was changed
+        was_tuned = self.preset.get_setting(self.active_slot, "TUNED")
         self.value_update("Setting", setting)
+        if not self.preset.get_setting(self.active_slot, "TUNED") == was_tuned:
+            self.update_rate_knob(self.active_slot, self.preset)
 
     def display_preset(self, preset):
         self.preset=preset
@@ -93,6 +96,11 @@ class PresetArea(object):
     def value_update(self, tag, value):
         ## new value from knob, update preset-object with new value
         if self.preset:
+            if tag=="Rate":
+                if self.preset.get_setting(self.active_slot, "TUNED"):
+                    value = round((value+36)/42*1022)
+                else:
+                    value = round((value+360)/420*1022)
             self.preset.slots[self.active_slot][self.preset.get_name_index(tag)] = value
 
     def display_slot(self, index, preset):
@@ -103,11 +111,27 @@ class PresetArea(object):
             self.knobs[1].set_num_value(preset.slots[index][self.preset.get_name_index("Release")])
             self.knobs[2].set_num_value(preset.slots[index][self.preset.get_name_index("Start")])
             self.knobs[3].set_num_value(preset.slots[index][self.preset.get_name_index("End")])
-            self.knobs[4].set_num_value(preset.slots[index][self.preset.get_name_index("Rate")])
+            self.update_rate_knob(index, preset)
             self.knobs[5].set_num_value(preset.slots[index][self.preset.get_name_index("Crush")])
             self.knobs[6].set_num_value(preset.slots[index][self.preset.get_name_index("Loop_Length")])
             self.knobs[7].set_num_value(preset.slots[index][self.preset.get_name_index("Shift_Speed")])
             self.settings_bar.set_setting(preset.slots[index][self.preset.get_name_index("Setting")])
+
+    def update_rate_knob(self, index, preset):
+        ## sets the rate-knob
+        ## if tuned-setting=true -> Scale -36 to 6, with -36=0 and 6=1022
+        ## if tuned-setting=false -> Scale -360 to 60, with -360=0 and 60=1022
+        if preset.get_setting(index, "TUNED"):
+            max = 6
+            min = -36
+            value = round(preset.get_param(index, "Rate")/1022 * 42 - 36)
+        else:
+            max = 60
+            min = -360
+            value = round(preset.get_param(index, "Rate")/1022 * 420 - 360)
+        self.knobs[4].min = min
+        self.knobs[4].max = max
+        self.knobs[4].set_num_value(value)
 
     def redraw(self):
         self.display_slot(self.button_bar.get_slot_index(), self.preset)

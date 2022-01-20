@@ -42,12 +42,12 @@ class Preset(CardFile):
             self.read_file(path)
             self.read_params()
         else:
-            self.slots=(['A3.wav', 127, 0, 5, 110, 0, 0, 0, 678, 7], ##no path=empty list
-                        ['A4.wav', 132, 10, 10, 5, 0, 0, 0, 345, 5],
-                        ['A5.wav', 14, 20, 0, 9, 9, 0, 124, 765, 3],
-                        ['A6.wav', 23, 30, 50, 7, 7, 0, 0, 999, 6],
-                        ['A7.wav', 78, 110, 40, 8, 0, 10, 0, 254, 9],
-                        ['A8.wav', 90, 120, 30, 5, 0, 0, 0, 1023, 113])
+            self.slots=(['A3.wav', 876, 0, 3, 3, 0, 0, 0, 1022, 0],
+                        ['A4.wav', 876, 0, 3, 3, 0, 0, 0, 1022, 0],
+                        ['A5.wav', 876, 0, 3, 3, 0, 0, 0, 1022, 0],
+                        ['A6.wav', 876, 0, 3, 3, 0, 0, 0, 1022, 0],
+                        ['A7.wav', 876, 0, 3, 3, 0, 0, 0, 1022, 0],
+                        ['A8.wav', 876, 0, 3, 3, 0, 0, 0, 1022, 0])
         self.update_bitstream()
         return super().__init__(path, file_name)
 
@@ -166,7 +166,7 @@ class Preset(CardFile):
         return self.bits_to_number(bits)
 
     def set_param(self, slot, name, value):
-        names = ('Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting')
+        names = ['Name', 'Rate', 'Crush', 'Attack', 'Release', 'Loop_Length', 'Shift_Speed', 'Start', 'End', 'Setting']
         if name==names[0]:
             self.set_var(slot, 9, ord(value[0]))
             self.set_var(slot, 10, ord(value[1]))
@@ -174,7 +174,7 @@ class Preset(CardFile):
         else:
             #anything but 'Name'
             names.remove('Name')
-            for i, nm in names:
+            for i, nm in enumerate(names):
                 if nm == name:
                     self.slots[slot][i+1]=value
                     self.set_var(slot, i, value)
@@ -190,3 +190,10 @@ class Preset(CardFile):
 
     def get_param(self, slot, name):
         return self.slots[slot][self.get_name_index(name)]
+
+    def get_setting(self, slot, name):
+        ##returns a setting as boolean
+        names=['TUNED', 'LEGATO','REPEAT','SYNC','RANDOM SHIFT','']
+        sett_byte = self.get_param(slot, "Setting")
+        bits = ([True if sett_byte & (1 << (7-n)) else False for n in range(8)])[::-1]
+        return bits[names.index(name)] == 1
