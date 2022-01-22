@@ -3,11 +3,8 @@
 
 block_cipher = None
 
-#added_files = [
-#    ( 'images\AppIcon.ico', 'images\AppIcon.ico' )
-#]
 
-a = Analysis(['MicroGrannyOrganicer.py'],
+a = Analysis(['MG_Organicer.py'],
              pathex=[],
              binaries=[],
              datas=[],
@@ -23,8 +20,6 @@ a = Analysis(['MicroGrannyOrganicer.py'],
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 
-a.datas += [('images\AppIcon.ico','images\AppIcon.ico','DATA')]
-
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
@@ -38,7 +33,7 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False,
+          console=True,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,

@@ -3,7 +3,7 @@ import os
 from collections import namedtuple 
 import Globals
 import json
-
+from pydub import AudioSegment
 
 
 
@@ -11,7 +11,7 @@ import json
 class CardFile(object):
     """Abstract class, represents a file on the MicroGrannys SD-Card. Can bei either a Preset ("P01.txt") a Sample ("A0.wav") or NameTable ("NameTable.txt")"""
 
-    path = ""             ## Path without Filename, may be path on Card or path on Drive. Files no computer CAN NOT be modified!!!
+    path = ""             ## Path with Filename, may be path on Card or path on Drive. Files no computer CAN NOT be modified!!!
     name = ""             ## A custom name for the file
     file_name = "XX.wav"  ## SD-Card-Format Filename of the file
     index = "12345"            ## The files index in a list
