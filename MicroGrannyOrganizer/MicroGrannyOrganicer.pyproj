@@ -43,6 +43,9 @@
     <Compile Include="KnobButton.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="setup.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SettingsBar.py">
       <SubType>Code</SubType>
     </Compile>
