@@ -1,5 +1,7 @@
 # MicroGranny Organicer
 
+![Alt text](Screenshot.png "UI Preview")
+
 Use this tool to manage the sample-files on your MicroGranny from Bastl Instruments.
 
 ## How to use exe
