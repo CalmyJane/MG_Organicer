@@ -12,7 +12,7 @@ Exe might be detected as not trustworthy, since I don't have any certificates fo
 ## How to run from python
 
 Install python 3.10
-run MG_Organicer.py
+run MicroGrannyOrganicer.py
 
 ## About MicroGranny
 
